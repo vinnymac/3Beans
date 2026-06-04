@@ -598,6 +598,52 @@ void GpuRenderOgl::flushBuffers(uint32_t mod) {
 }
 
 void GpuRenderOgl::updateBuffers() {
+    // Copy data from memory to the color buffer based on format if dirty
+    if (readDirty & BIT(0)) {
+        uint32_t *data = nullptr;
+        uint16_t w = bufWidth, h = bufHeight;
+        glActiveTexture(GL_TEXTURE0 + TEX_BUFFER);
+        switch (colbufFmt) {
+        case COL_RGBA8:
+            data = new uint32_t[w * h];
+            for (int y = 0; y < h; y++)
+                for (int x = 0; x < w; x++)
+                    data[y * w + x] = core.memory.read<uint32_t>(ARM11, colbufAddr + getSwizzle(x, y, w) * 4);
+            glTexImage2D(GL_TEXTURE_2D, 0, GL_RGBA, bufWidth, bufHeight, 0, GL_RGBA, GL_UNSIGNED_INT_8_8_8_8, data);
+            break;
+        case COL_RGB8:
+            data = new uint32_t[w * h];
+            for (int y = 0; y < h; y++)
+                for (int x = 0; x < w; x++)
+                    data[y * w + x] = core.memory.read<uint32_t>(ARM11, colbufAddr + getSwizzle(x, y, w) * 3 - 1) | 0xFF;
+            glTexImage2D(GL_TEXTURE_2D, 0, GL_RGBA, bufWidth, bufHeight, 0, GL_RGBA, GL_UNSIGNED_INT_8_8_8_8, data);
+            break;
+        case COL_RGB565:
+            data = new uint32_t[w * h / 2];
+            for (int y = 0; y < h; y++)
+                for (int x = 0; x < w; x += 2)
+                    data[(y * w + x) / 2] = core.memory.read<uint32_t>(ARM11, colbufAddr + getSwizzle(x, y, w) * 2);
+            glTexImage2D(GL_TEXTURE_2D, 0, GL_RGBA, bufWidth, bufHeight, 0, GL_RGB, GL_UNSIGNED_SHORT_5_6_5, data);
+            break;
+        case COL_RGB5A1:
+            data = new uint32_t[w * h / 2];
+            for (int y = 0; y < h; y++)
+                for (int x = 0; x < w; x += 2)
+                    data[(y * w + x) / 2] = core.memory.read<uint32_t>(ARM11, colbufAddr + getSwizzle(x, y, w) * 2);
+            glTexImage2D(GL_TEXTURE_2D, 0, GL_RGBA, bufWidth, bufHeight, 0, GL_RGBA, GL_UNSIGNED_SHORT_5_5_5_1, data);
+            break;
+        case COL_RGBA4:
+            data = new uint32_t[w * h / 2];
+            for (int y = 0; y < h; y++)
+                for (int x = 0; x < w; x += 2)
+                    data[(y * w + x) / 2] = core.memory.read<uint32_t>(ARM11, colbufAddr + getSwizzle(x, y, w) * 2);
+            glTexImage2D(GL_TEXTURE_2D, 0, GL_RGBA, bufWidth, bufHeight, 0, GL_RGBA, GL_UNSIGNED_SHORT_4_4_4_4, data);
+            break;
+        }
+        delete[] data;
+        readDirty &= ~BIT(0);
+    }
+
     // Resize and clear the depth/stencil buffer if dirty, restoring state after
     if (readDirty & BIT(1)) {
         glRenderbufferStorage(GL_RENDERBUFFER, GL_DEPTH24_STENCIL8, bufWidth, bufHeight);
@@ -610,51 +656,6 @@ void GpuRenderOgl::updateBuffers() {
         updateViewport();
         readDirty &= ~BIT(1);
     }
-
-    // Copy data from memory to the color buffer based on format if dirty
-    if (~readDirty & BIT(0)) return;
-    uint32_t *data = nullptr;
-    uint16_t w = bufWidth, h = bufHeight;
-    glActiveTexture(GL_TEXTURE0 + TEX_BUFFER);
-    switch (colbufFmt) {
-    case COL_RGBA8:
-        data = new uint32_t[w * h];
-        for (int y = 0; y < h; y++)
-            for (int x = 0; x < w; x++)
-                data[y * w + x] = core.memory.read<uint32_t>(ARM11, colbufAddr + getSwizzle(x, y, w) * 4);
-        glTexImage2D(GL_TEXTURE_2D, 0, GL_RGBA, bufWidth, bufHeight, 0, GL_RGBA, GL_UNSIGNED_INT_8_8_8_8, data);
-        break;
-    case COL_RGB8:
-        data = new uint32_t[w * h];
-        for (int y = 0; y < h; y++)
-            for (int x = 0; x < w; x++)
-                data[y * w + x] = core.memory.read<uint32_t>(ARM11, colbufAddr + getSwizzle(x, y, w) * 3 - 1) | 0xFF;
-        glTexImage2D(GL_TEXTURE_2D, 0, GL_RGBA, bufWidth, bufHeight, 0, GL_RGBA, GL_UNSIGNED_INT_8_8_8_8, data);
-        break;
-    case COL_RGB565:
-        data = new uint32_t[w * h / 2];
-        for (int y = 0; y < h; y++)
-            for (int x = 0; x < w; x += 2)
-                data[(y * w + x) / 2] = core.memory.read<uint32_t>(ARM11, colbufAddr + getSwizzle(x, y, w) * 2);
-        glTexImage2D(GL_TEXTURE_2D, 0, GL_RGBA, bufWidth, bufHeight, 0, GL_RGB, GL_UNSIGNED_SHORT_5_6_5, data);
-        break;
-    case COL_RGB5A1:
-        data = new uint32_t[w * h / 2];
-        for (int y = 0; y < h; y++)
-            for (int x = 0; x < w; x += 2)
-                data[(y * w + x) / 2] = core.memory.read<uint32_t>(ARM11, colbufAddr + getSwizzle(x, y, w) * 2);
-        glTexImage2D(GL_TEXTURE_2D, 0, GL_RGBA, bufWidth, bufHeight, 0, GL_RGBA, GL_UNSIGNED_SHORT_5_5_5_1, data);
-        break;
-    case COL_RGBA4:
-        data = new uint32_t[w * h / 2];
-        for (int y = 0; y < h; y++)
-            for (int x = 0; x < w; x += 2)
-                data[(y * w + x) / 2] = core.memory.read<uint32_t>(ARM11, colbufAddr + getSwizzle(x, y, w) * 2);
-        glTexImage2D(GL_TEXTURE_2D, 0, GL_RGBA, bufWidth, bufHeight, 0, GL_RGBA, GL_UNSIGNED_SHORT_4_4_4_4, data);
-        break;
-    }
-    delete[] data;
-    readDirty &= ~BIT(0);
 }
 
 void GpuRenderOgl::updateTextures() {
