@@ -25,6 +25,7 @@ jobs:
       (github.event_name == 'schedule' || github.event_name == 'workflow_dispatch')
     outputs:
       sha: ${{ steps.merge.outputs.sha }}
+      changed: ${{ steps.merge.outputs.changed }}
     steps:
       - name: Checkout
         uses: actions/checkout@v6
@@ -38,15 +39,26 @@ jobs:
           git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
           git remote add upstream https://github.com/Hydr8gon/3Beans.git
           git fetch upstream main
+          BEFORE_SHA=$(git rev-parse HEAD)
           git merge upstream/main --no-edit
-          git push origin main
-          echo "sha=$(git rev-parse HEAD)" >> "$GITHUB_OUTPUT"
+          AFTER_SHA=$(git rev-parse HEAD)
+          if [ "$BEFORE_SHA" != "$AFTER_SHA" ]; then
+            git push origin main
+            echo "changed=true" >> "$GITHUB_OUTPUT"
+          else
+            echo "changed=false" >> "$GITHUB_OUTPUT"
+          fi
+          echo "sha=$AFTER_SHA" >> "$GITHUB_OUTPUT"
 
   build:
     runs-on: ubuntu-latest
     needs: sync-upstream
-    # Build on direct pushes too, where the sync job is skipped
-    if: always() && (needs.sync-upstream.result == 'success' || needs.sync-upstream.result == 'skipped')
+    # Build on direct pushes (sync skipped) or when upstream actually changed
+    if: >-
+      always() && (
+        needs.sync-upstream.result == 'skipped' ||
+        (needs.sync-upstream.result == 'success' && needs.sync-upstream.outputs.changed == 'true')
+      )
     strategy:
       fail-fast: false
       matrix:
