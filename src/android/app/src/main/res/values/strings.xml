@@ -1,0 +1,68 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="app_name" translatable="false">3Beans</string>
+
+    <!-- Main screen -->
+    <string name="empty_no_folder">Select a folder containing your 3DS cart ROMs (.3ds, .cci) to get started.</string>
+    <string name="empty_no_games">No 3DS cart ROMs (.3ds, .cci) were found in the selected folder.</string>
+    <string name="choose_folder">Choose games folder</string>
+    <string name="boot_home_menu">Boot home menu</string>
+    <string name="system_files_warning_title">System files needed</string>
+    <string name="system_files_warning_text">Boot ROMs and a NAND dump are required before games can run. Tap to configure.</string>
+    <string name="action_choose_folder">Choose games folder</string>
+    <string name="action_system_files">System files</string>
+    <string name="action_settings">Settings</string>
+
+    <!-- System files screen -->
+    <string name="system_files_title">System files</string>
+    <string name="system_files_help">3Beans is a low-level emulator and boots from real console files. Dump them from a 3DS with GodMode9, then pick each file below. Files can also be placed manually in %s.</string>
+    <string name="boot11_title">ARM11 boot ROM (boot11.bin)</string>
+    <string name="boot11_desc">Required. The ARM11 boot ROM dumped from a 3DS.</string>
+    <string name="boot9_title">ARM9 boot ROM (boot9.bin)</string>
+    <string name="boot9_desc">Required. The ARM9 boot ROM dumped from a 3DS.</string>
+    <string name="nand_title">NAND dump (nand.bin)</string>
+    <string name="nand_desc">Required to boot the home menu. A GodMode9 NAND dump including the embedded CID and OTP.</string>
+    <string name="sd_title">SD card image (sd.img)</string>
+    <string name="sd_desc">Optional. A FAT-formatted SD card image for titles and saves.</string>
+    <string name="status_document">Using picked file: %s</string>
+    <string name="status_local">Using file from the app folder</string>
+    <string name="status_missing">Not configured (optional)</string>
+    <string name="status_missing_required">Not configured (required)</string>
+    <string name="choose_file">Choose</string>
+    <string name="clear_file">Clear</string>
+
+    <!-- Emulation -->
+    <string name="fps_format">%d FPS</string>
+    <string name="emulation_menu">Emulation menu</string>
+    <string name="error_title">Unable to start</string>
+    <string name="error_boot_roms">One of the boot ROMs is missing! Configure boot11.bin and boot9.bin under System Files. You probably also want a NAND dump from GodMode9 and a FAT-formatted SD image file.</string>
+    <string name="error_cart_open">The selected cart ROM could not be opened.</string>
+    <string name="menu_resume">Resume</string>
+    <string name="menu_restart">Restart</string>
+    <string name="menu_hide_controls">Hide touch controls</string>
+    <string name="menu_show_controls">Show touch controls</string>
+    <string name="menu_settings">Settings</string>
+    <string name="menu_quit">Quit</string>
+
+    <!-- Settings -->
+    <string name="pref_category_core">Emulation</string>
+    <string name="pref_category_app">Interface</string>
+    <string name="pref_fps_limiter">FPS limiter</string>
+    <string name="pref_fps_limiter_desc">Limit emulation to 60 FPS</string>
+    <string name="pref_cart_auto_boot">Cart auto-boot</string>
+    <string name="pref_cart_auto_boot_desc">Boot inserted carts directly, skipping the home menu</string>
+    <string name="pref_dsp_backend">DSP backend</string>
+    <string name="dsp_interpreter">Interpreter</string>
+    <string name="dsp_hle">HLE</string>
+    <string name="pref_threaded_gpu">Threaded GPU</string>
+    <string name="pref_threaded_gpu_desc">Run the software GPU renderer on its own thread</string>
+    <string name="pref_unit_type">Console type</string>
+    <string name="unit_retail">Retail</string>
+    <string name="unit_dev">Developer</string>
+    <string name="pref_restart_required">takes effect on restart</string>
+    <string name="pref_show_overlay">Show touch controls</string>
+    <string name="pref_overlay_scale">Touch control scale (%)</string>
+    <string name="pref_overlay_opacity">Touch control opacity (%)</string>
+    <string name="pref_haptics">Haptic feedback</string>
+    <string name="pref_show_fps">Show FPS counter</string>
+</resources>

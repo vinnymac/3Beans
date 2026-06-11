@@ -1,0 +1,127 @@
+name: Android Builds
+
+on:
+  schedule:
+    - cron: '0 6 * * 1' # Mondays 06:00 UTC
+  workflow_dispatch:
+  push:
+    branches:
+      - main
+      - vt/android
+    paths:
+      - 'src/android/**'
+      - 'src/core/**'
+      - '.github/workflows/android.yml'
+
+permissions:
+  contents: write
+
+jobs:
+  sync-upstream:
+    runs-on: ubuntu-latest
+    # Only merge upstream on scheduled or manual runs of the fork
+    if: >-
+      github.repository == 'vinnymac/3Beans' &&
+      (github.event_name == 'schedule' || github.event_name == 'workflow_dispatch')
+    outputs:
+      sha: ${{ steps.merge.outputs.sha }}
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+        with:
+          ref: main
+          fetch-depth: 0
+      - name: Merge upstream changes
+        id: merge
+        run: |
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git remote add upstream https://github.com/Hydr8gon/3Beans.git
+          git fetch upstream main
+          git merge upstream/main --no-edit
+          git push origin main
+          echo "sha=$(git rev-parse HEAD)" >> "$GITHUB_OUTPUT"
+
+  build:
+    runs-on: ubuntu-latest
+    needs: sync-upstream
+    # Build on direct pushes too, where the sync job is skipped
+    if: always() && (needs.sync-upstream.result == 'success' || needs.sync-upstream.result == 'skipped')
+    strategy:
+      fail-fast: false
+      matrix:
+        include:
+          - flavor: vanilla
+            task: assembleVanillaRelease
+            apk: vanilla/release/app-vanilla-release.apk
+          - flavor: googleplay
+            task: assembleGooglePlayRelease
+            apk: googlePlay/release/app-googlePlay-release.apk
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+        with:
+          ref: ${{ needs.sync-upstream.outputs.sha || github.sha }}
+      - name: Set up JDK
+        uses: actions/setup-java@v4
+        with:
+          distribution: temurin
+          java-version: '17'
+      - name: Set up Gradle
+        uses: gradle/actions/setup-gradle@v4
+      - name: Build APK
+        working-directory: src/android
+        env:
+          ANDROID_KEYSTORE_B64: ${{ secrets.ANDROID_KEYSTORE_B64 }}
+          ANDROID_KEY_ALIAS: ${{ secrets.ANDROID_KEY_ALIAS }}
+          ANDROID_KEYSTORE_PASS: ${{ secrets.ANDROID_KEYSTORE_PASS }}
+        run: |
+          if [ -n "$ANDROID_KEYSTORE_B64" ]; then
+            export ANDROID_KEYSTORE_FILE="$RUNNER_TEMP/keystore.jks"
+            echo "$ANDROID_KEYSTORE_B64" | base64 -d > "$ANDROID_KEYSTORE_FILE"
+          else
+            echo "::warning::No ANDROID_KEYSTORE_B64 secret set; the APK will be debug-signed"
+          fi
+          chmod +x gradlew
+          ./gradlew ${{ matrix.task }}
+      - name: Collect APK
+        run: |
+          mkdir artifacts
+          cp src/android/app/build/outputs/apk/${{ matrix.apk }} artifacts/3beans-android-${{ matrix.flavor }}.apk
+      - name: Upload
+        uses: actions/upload-artifact@v4
+        with:
+          name: 3beans-android-${{ matrix.flavor }}
+          path: artifacts/*.apk
+
+  update-release:
+    runs-on: ubuntu-latest
+    needs: [sync-upstream, build]
+    # Publish from scheduled/manual runs and pushes to main, but not from branches
+    if: >-
+      always() && needs.build.result == 'success' &&
+      (github.event_name != 'push' || github.ref == 'refs/heads/main')
+    steps:
+      - name: Get artifacts
+        uses: actions/download-artifact@v4
+      - name: Stage artifacts
+        run: |
+          mkdir release
+          mv 3beans-android-*/*.apk release/
+          echo "BUILD_DATE=$(date -u +%Y-%m-%d)" >> "$GITHUB_ENV"
+      - name: Update release
+        uses: ncipollo/release-action@v1
+        with:
+          name: Android Rolling Release
+          body: |
+            Automatically updated Android builds of the latest commit, refreshed weekly with upstream changes.
+            Last built on ${{ env.BUILD_DATE }}.
+
+            - `3beans-android-vanilla.apk` — standard build
+            - `3beans-android-googleplay.apk` — Google Play flavor
+          tag: android
+          allowUpdates: true
+          removeArtifacts: true
+          makeLatest: true
+          artifacts: 'release/*.apk'
+          token: ${{ secrets.GITHUB_TOKEN }}
