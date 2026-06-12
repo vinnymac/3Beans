@@ -22,10 +22,16 @@ package com.hydra.threebeans
 import android.content.Intent
 import android.os.Bundle
 import android.view.LayoutInflater
+import android.view.View
 import androidx.activity.result.contract.ActivityResultContracts
+import androidx.appcompat.app.AlertDialog
 import androidx.appcompat.app.AppCompatActivity
+import androidx.lifecycle.lifecycleScope
 import com.hydra.threebeans.databinding.ActivitySystemFilesBinding
 import com.hydra.threebeans.databinding.ItemSystemFileBinding
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.launch
+import kotlinx.coroutines.withContext
 
 class SystemFilesActivity : AppCompatActivity() {
     private lateinit var binding: ActivitySystemFilesBinding
@@ -91,22 +97,72 @@ class SystemFilesActivity : AppCompatActivity() {
 
     private fun updateRow(entry: SystemFiles.Entry) {
         val row = rows.getValue(entry.key)
+        val isSdImage = entry.fileName == "sd.img"
         when (SystemFiles.status(this, entry)) {
             SystemFiles.Status.DOCUMENT -> {
                 val uri = SystemFiles.pickedUri(this, entry)
                 val name = uri?.let { SystemFiles.displayName(this, it) } ?: "?"
                 row.fileStatus.text = getString(R.string.status_document, name)
                 row.clearButton.isEnabled = true
+                row.createButton.visibility = View.GONE
             }
             SystemFiles.Status.LOCAL -> {
                 row.fileStatus.setText(R.string.status_local)
                 row.clearButton.isEnabled = false
+                if (isSdImage) {
+                    row.createButton.visibility = View.VISIBLE
+                    row.createButton.isEnabled = true
+                    row.createButton.setText(R.string.delete_sd_image)
+                    row.createButton.setOnClickListener {
+                        AlertDialog.Builder(this)
+                            .setTitle(R.string.delete_sd_confirm_title)
+                            .setMessage(R.string.delete_sd_confirm_message)
+                            .setPositiveButton(R.string.delete_sd_image) { _, _ ->
+                                row.createButton.isEnabled = false
+                                lifecycleScope.launch {
+                                    withContext(Dispatchers.IO) {
+                                        SystemFiles.localFile(this@SystemFilesActivity, entry).delete()
+                                    }
+                                    updateRow(entry)
+                                }
+                            }
+                            .setNegativeButton(android.R.string.cancel, null)
+                            .show()
+                    }
+                } else {
+                    row.createButton.visibility = View.GONE
+                }
             }
             SystemFiles.Status.MISSING -> {
                 row.fileStatus.setText(
                     if (entry.required) R.string.status_missing_required else R.string.status_missing
                 )
                 row.clearButton.isEnabled = false
+                if (isSdImage) {
+                    row.createButton.visibility = View.VISIBLE
+                    row.createButton.isEnabled = true
+                    row.createButton.setText(R.string.create_sd_image)
+                    row.createButton.setOnClickListener {
+                        row.createButton.isEnabled = false
+                        lifecycleScope.launch {
+                            try {
+                                withContext(Dispatchers.IO) {
+                                    SystemFiles.createEmptySdImage(this@SystemFilesActivity)
+                                }
+                                updateRow(entry)
+                            } catch (e: Exception) {
+                                row.createButton.isEnabled = true
+                                AlertDialog.Builder(this@SystemFilesActivity)
+                                    .setTitle(R.string.error_sd_create_title)
+                                    .setMessage(R.string.error_sd_create)
+                                    .setPositiveButton(android.R.string.ok, null)
+                                    .show()
+                            }
+                        }
+                    }
+                } else {
+                    row.createButton.visibility = View.GONE
+                }
             }
         }
     }

@@ -30,6 +30,12 @@
     <string name="status_local">Using file from the app folder</string>
     <string name="status_missing">Not configured (optional)</string>
     <string name="status_missing_required">Not configured (required)</string>
+    <string name="create_sd_image">Create empty</string>
+    <string name="delete_sd_image">Delete</string>
+    <string name="delete_sd_confirm_title">Delete SD image?</string>
+    <string name="delete_sd_confirm_message">This will permanently delete sd.img and all save data stored on it.</string>
+    <string name="error_sd_create_title">SD image error</string>
+    <string name="error_sd_create">Failed to create SD image. Check available storage and try again.</string>
     <string name="choose_file">Choose</string>
     <string name="clear_file">Clear</string>
 

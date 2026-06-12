@@ -41,6 +41,15 @@
             android:orientation="horizontal">
 
             <Button
+                android:id="@+id/createButton"
+                style="?attr/materialButtonOutlinedStyle"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_marginEnd="8dp"
+                android:text="@string/create_sd_image"
+                android:visibility="gone" />
+
+            <Button
                 android:id="@+id/clearButton"
                 style="?attr/materialButtonOutlinedStyle"
                 android:layout_width="wrap_content"
