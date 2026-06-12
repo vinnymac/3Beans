@@ -23,9 +23,17 @@
 #include <set>
 #include <dirent.h>
 #include <sys/stat.h>
+#include <unistd.h>
 
 #include "virtual_fat.h"
 #include "../defines.h"
+
+// FatFs declares its own DIR type, which collides with POSIX <dirent.h>'s DIR.
+// Both are used in this file, so rename FatFs's just across its include.
+#define DIR FATFS_DIR
+#include "fatfs/ff.h"
+#undef DIR
+#include "fatfs/vfat_bridge.h"
 
 // Use 64-bit file offsets so file data past 2 GB reads correctly everywhere
 #ifdef WINDOWS
@@ -678,4 +686,243 @@ void VirtualFatBlock::discardOverlay() {
     overlay.clear();
     dirty = false;
     remove(overlayPath.c_str());
+}
+
+// ---------------------------------------------------------------------------
+// Commit: read the final base+overlay image with FatFs and mirror it into the
+// host folder. The guest produced a complete, consistent FAT image during the
+// run (no concurrent host writes), so this only ever READS the image and WRITES
+// host files — the safe direction, never reversing raw block writes.
+// ---------------------------------------------------------------------------
+
+namespace {
+
+// The BlockDevice FatFs is currently reading from, via the C diskio bridge
+BlockDevice *g_commitDev = nullptr;
+
+// Remove a host file or directory tree that no longer exists in the image
+void removeRecursively(const std::string &path) {
+    struct stat st;
+    if (stat(path.c_str(), &st) != 0) return;
+    if (S_ISDIR(st.st_mode)) {
+        if (DIR *d = opendir(path.c_str())) {
+            while (struct dirent *e = readdir(d)) {
+                std::string n = e->d_name;
+                if (n != "." && n != "..") removeRecursively(path + "/" + n);
+            }
+            closedir(d);
+        }
+        rmdir(path.c_str());
+    }
+    else {
+        remove(path.c_str());
+    }
+}
+
+// Whether a host file already matches the image file's contents byte-for-byte
+bool sameContent(FIL *fil, const std::string &hostPath, FSIZE_t size) {
+    FILE *hf = fopen(hostPath.c_str(), "rb");
+    if (!hf) return false;
+    bool same = true;
+    uint8_t a[4096], b[4096];
+    FSIZE_t remaining = size;
+    while (remaining > 0) {
+        UINT want = remaining > sizeof(a) ? UINT(sizeof(a)) : UINT(remaining);
+        UINT got = 0;
+        if (f_read(fil, a, want, &got) != FR_OK || got != want) { same = false; break; }
+        if (fread(b, 1, want, hf) != want || memcmp(a, b, want) != 0) { same = false; break; }
+        remaining -= want;
+    }
+    fclose(hf);
+    return same;
+}
+
+// Write the image file to the host only if new or changed; leaves unchanged
+// files (the common case, since untouched data is read straight from them) alone
+bool writeFileIfChanged(const std::string &fatPath, const std::string &hostPath, FSIZE_t size) {
+    FIL fil;
+    if (f_open(&fil, fatPath.c_str(), FA_READ) != FR_OK) return false;
+
+    struct stat st;
+    bool exists = (stat(hostPath.c_str(), &st) == 0 && S_ISREG(st.st_mode));
+    if (exists && FSIZE_t(st.st_size) == size && sameContent(&fil, hostPath, size)) {
+        f_close(&fil);
+        return true;
+    }
+
+    // Rewrite the host file from the image
+    if (f_lseek(&fil, 0) != FR_OK) { f_close(&fil); return false; }
+    FILE *hf = fopen(hostPath.c_str(), "wb");
+    if (!hf) { f_close(&fil); return false; }
+    uint8_t buf[4096];
+    UINT got = 0;
+    FRESULT fr;
+    do {
+        fr = f_read(&fil, buf, sizeof(buf), &got);
+        if (fr == FR_OK && got) fwrite(buf, 1, got, hf);
+    } while (fr == FR_OK && got == sizeof(buf));
+    fclose(hf);
+    f_close(&fil);
+    return fr == FR_OK;
+}
+
+// Pass 1: walk the whole image read-only, reading every file to EOF, so a
+// corrupt or truncated image is rejected before any host file is touched
+bool validateDir(const std::string &fatPath) {
+    FATFS_DIR dir;
+    FILINFO fno;
+    if (f_opendir(&dir, fatPath.empty() ? "/" : fatPath.c_str()) != FR_OK) return false;
+    bool ok = true;
+    for (;;) {
+        if (f_readdir(&dir, &fno) != FR_OK) { ok = false; break; }
+        if (fno.fname[0] == 0) break;
+        std::string name = fno.fname;
+        if (name == "." || name == "..") continue;
+        std::string childFat = fatPath + "/" + name;
+        if (fno.fattrib & AM_DIR) {
+            if (!validateDir(childFat)) { ok = false; break; }
+        }
+        else {
+            FIL fil;
+            if (f_open(&fil, childFat.c_str(), FA_READ) != FR_OK) { ok = false; break; }
+            uint8_t buf[4096];
+            UINT got;
+            FRESULT fr;
+            do { fr = f_read(&fil, buf, sizeof(buf), &got); } while (fr == FR_OK && got == sizeof(buf));
+            f_close(&fil);
+            if (fr != FR_OK) { ok = false; break; }
+        }
+    }
+    f_closedir(&dir);
+    return ok;
+}
+
+// Pass 2: make the host folder exactly match the image directory
+bool mirrorDir(const std::string &fatPath, const std::string &hostPath) {
+    FATFS_DIR dir;
+    FILINFO fno;
+    if (f_opendir(&dir, fatPath.empty() ? "/" : fatPath.c_str()) != FR_OK) return false;
+
+    std::set<std::string> imageNames;
+    bool ok = true;
+    for (;;) {
+        if (f_readdir(&dir, &fno) != FR_OK) { ok = false; break; }
+        if (fno.fname[0] == 0) break;
+        std::string name = fno.fname;
+        if (name == "." || name == "..") continue;
+        imageNames.insert(name);
+        std::string childFat = fatPath + "/" + name;
+        std::string childHost = hostPath + "/" + name;
+        if (fno.fattrib & AM_DIR) {
+            mkdir(childHost.c_str() MKDIR_ARGS); // create if missing
+            if (!mirrorDir(childFat, childHost)) { ok = false; break; }
+        }
+        else if (!writeFileIfChanged(childFat, childHost, fno.fsize)) {
+            ok = false;
+            break;
+        }
+    }
+    f_closedir(&dir);
+    if (!ok) return false;
+
+    // Delete host entries the guest removed from the image
+    if (DIR *hd = opendir(hostPath.c_str())) {
+        std::vector<std::string> stale;
+        while (struct dirent *e = readdir(hd)) {
+            std::string n = e->d_name;
+            if (n != "." && n != ".." && imageNames.find(n) == imageNames.end())
+                stale.push_back(hostPath + "/" + n);
+        }
+        closedir(hd);
+        for (const std::string &p : stale)
+            removeRecursively(p);
+    }
+    return true;
+}
+
+} // namespace
+
+extern "C" int vfatBridgeRead(uint32_t sector, uint32_t count, void *buffer) {
+    if (!g_commitDev) return 0;
+    return g_commitDev->read(uint64_t(sector) << 9, size_t(count) * 512, buffer) ? 1 : 0;
+}
+
+extern "C" uint32_t vfatBridgeSectorCount(void) {
+    return g_commitDev ? uint32_t(g_commitDev->capacity() >> 9) : 0;
+}
+
+bool VirtualFatBlock::commitImageToFolder(BlockDevice &dev, const std::string &folder) {
+    g_commitDev = &dev;
+    FATFS fs;
+    bool ok = false;
+    if (f_mount(&fs, "", 1) == FR_OK) {
+        // Validate the whole image before mutating any host file
+        if (validateDir(""))
+            ok = mirrorDir("", folder);
+        else
+            LOG_CRIT("Virtual SD image failed validation; commit aborted\n");
+    }
+    else {
+        LOG_CRIT("FatFs failed to mount the virtual SD image for commit\n");
+    }
+    f_mount(nullptr, "", 0); // unmount
+    g_commitDev = nullptr;
+    return ok;
+}
+
+bool VirtualFatBlock::commit() {
+    if (!opened) return false;
+    if (!dirty) return true; // nothing was written this session
+
+    if (!commitImageToFolder(*this, rootPath)) {
+        LOG_CRIT("Virtual SD commit failed; overlay kept for retry\n");
+        return false;
+    }
+    discardOverlay();
+    LOG_INFO("Virtual SD overlay committed to %s\n", rootPath.c_str());
+    return true;
+}
+
+int VirtualFatBlock::commitOverlay(const std::string &rootPath, const std::string &overlayPath, bool allowDrift) {
+    VirtualFatBlock dev(rootPath, overlayPath);
+    if (!dev.isOpen()) return 3;
+    if (!dev.isDirty()) return 0; // no uncommitted writes
+    if (dev.hasDrift() && !allowDrift) return 2; // let the caller resolve the conflict
+    return dev.commit() ? 1 : 3;
+}
+
+void VirtualFatBlock::resetOverlay(const std::string &overlayPath) {
+    remove(overlayPath.c_str());
+}
+
+bool VirtualFatBlock::exportImage(const std::string &destPath) {
+    if (!opened) return false;
+    FILE *out = fopen(destPath.c_str(), "wb");
+    if (!out) { LOG_CRIT("Cannot open SD image export: %s\n", destPath.c_str()); return false; }
+
+    uint8_t sec[bytesPerSec], zero[bytesPerSec];
+    memset(zero, 0, bytesPerSec);
+    auto emit = [&](uint32_t s, const uint8_t *data) {
+        if (memcmp(data, zero, bytesPerSec) == 0) return; // keep the file sparse
+        FSEEK64(out, uint64_t(s) << 9, SEEK_SET);
+        fwrite(data, 1, bytesPerSec, out);
+    };
+
+    // Synthesized/base region (reserved, FATs, and allocated data clusters)
+    uint32_t baseMax = firstDataSector + (nextFreeCluster - 2) * secPerClus;
+    for (uint32_t s = 0; s < baseMax; s++) {
+        readSector(s, sec);
+        emit(s, sec);
+    }
+    // Overlay sectors beyond the base region (clusters the guest allocated)
+    for (const auto &pair : overlay)
+        if (pair.first >= baseMax)
+            emit(pair.first, pair.second.data());
+
+    // Extend to the full volume size; the file stays sparse
+    FSEEK64(out, (uint64_t(totalSectors) << 9) - 1, SEEK_SET);
+    uint8_t last = 0;
+    fwrite(&last, 1, 1, out);
+    fclose(out);
+    return true;
 }

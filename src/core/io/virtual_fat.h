@@ -53,6 +53,30 @@ public:
     // Drop the overlay and its sidecar (e.g. after committing, or on a reset)
     void discardOverlay();
 
+    // Reconcile the overlay's final filesystem state back into the host folder
+    // (creating, updating, and deleting files to match), clearing the overlay on
+    // success. A no-op with no writes; returns false and keeps the overlay if the
+    // image can't be read cleanly, so nothing is lost on a bad commit.
+    bool commit();
+
+    // Write the current base+overlay out as a standalone, sparse FAT32 image.
+    bool exportImage(const std::string &destPath);
+
+    // Mirror the FAT32 image on dev into folder (create/update/delete). Static and
+    // device-agnostic so it can be tested against any BlockDevice, e.g. a real
+    // image built and modified by mtools.
+    static bool commitImageToFolder(BlockDevice &dev, const std::string &folder);
+
+    // Run a commit out of band: after a stop, on next-launch crash recovery, or a
+    // "sync now". Builds a device from the sidecar and reconciles it. Returns
+    // 0 = no overlay to commit, 1 = committed, 2 = folder drifted (not committed,
+    // caller must resolve), 3 = error. allowDrift forces a commit despite drift.
+    static int commitOverlay(const std::string &rootPath, const std::string &overlayPath,
+        bool allowDrift = false);
+
+    // Discard a pending overlay sidecar (drop the emulator's unsynced writes)
+    static void resetOverlay(const std::string &overlayPath);
+
 private:
     // A scanned host file or directory and its assigned FAT32 cluster range
     struct Node {

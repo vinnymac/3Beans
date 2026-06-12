@@ -1,8 +1,9 @@
 NAME := 3beans
 BUILD := build
 META := meta
-SRCS := src src/core src/core/arm src/core/convert src/core/dsp src/core/gpu src/core/io src/core/memory src/desktop
+SRCS := src src/core src/core/arm src/core/convert src/core/dsp src/core/gpu src/core/io src/core/io/fatfs src/core/memory src/desktop
 ARGS := -O3 -flto -std=c++11 -DLOG_LEVEL=0
+CARGS := -O3 -flto -DLOG_LEVEL=0
 LIBS := $(shell pkg-config --libs portaudio-2.0 epoxy)
 INCS := $(shell pkg-config --cflags portaudio-2.0 epoxy)
 
@@ -10,6 +11,7 @@ APPNAME := 3Beans
 PKGNAME := com.hydra.threebeans
 DESTDIR ?= /usr
 CXX ?= g++
+CC ?= gcc
 
 ifeq ($(OS),Windows_NT)
   ARGS += -static -DWINDOWS
@@ -28,8 +30,9 @@ else
 endif
 
 CPPFILES := $(foreach dir,$(SRCS),$(wildcard $(dir)/*.cpp))
+CFILES := $(foreach dir,$(SRCS),$(wildcard $(dir)/*.c))
 HFILES := $(foreach dir,$(SRCS),$(wildcard $(dir)/*.h))
-OFILES := $(patsubst %.cpp,$(BUILD)/%.o,$(CPPFILES))
+OFILES := $(patsubst %.cpp,$(BUILD)/%.o,$(CPPFILES)) $(patsubst %.c,$(BUILD)/%.o,$(CFILES))
 
 ifeq ($(OS),Windows_NT)
   OFILES += $(BUILD)/icon-windows.o
@@ -77,6 +80,9 @@ $(NAME): $(OFILES)
 
 $(BUILD)/%.o: %.cpp $(HFILES) $(BUILD)
 	$(CXX) -c -o $@ $(ARGS) $(INCS) $<
+
+$(BUILD)/%.o: %.c $(HFILES) $(BUILD)
+	$(CC) -c -o $@ $(CARGS) $<
 
 $(BUILD)/icon-windows.o:
 	windres $(shell wx-config-static --cppflags) icon/windows.rc $@

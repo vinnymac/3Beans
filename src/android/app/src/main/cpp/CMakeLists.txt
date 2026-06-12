@@ -1,8 +1,9 @@
 cmake_minimum_required(VERSION 3.22.1)
-project(3beans CXX)
+project(3beans C CXX)
 
 set(CMAKE_CXX_STANDARD 11)
 set(CMAKE_CXX_STANDARD_REQUIRED ON)
+set(CMAKE_C_STANDARD 11)
 
 # The emulator core is shared with the desktop build and compiled unmodified
 set(CORE_DIR ${CMAKE_CURRENT_SOURCE_DIR}/../../../../../core)
@@ -14,6 +15,7 @@ file(GLOB CORE_SOURCES CONFIGURE_DEPENDS
     ${CORE_DIR}/dsp/*.cpp
     ${CORE_DIR}/gpu/*.cpp
     ${CORE_DIR}/io/*.cpp
+    ${CORE_DIR}/io/fatfs/*.c
     ${CORE_DIR}/memory/*.cpp)
 
 add_library(3beans SHARED interface.cpp ${CORE_SOURCES})
