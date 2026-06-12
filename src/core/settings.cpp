@@ -29,11 +29,14 @@ namespace Settings {
     int gpuVtxShader = 0;
     int gpuFragShader = 0;
     int unitType = 0;
+    int sdVirtual = 0;
 
     std::string boot11Path = "boot11.bin";
     std::string boot9Path = "boot9.bin";
     std::string nandPath = "nand.bin";
     std::string sdPath = "sd.img";
+    std::string sdRootPath = "sdcard";
+    std::string sdOverlayPath = "sd.overlay";
     std::string basePath = ".";
 
     std::vector<Setting> settings = {
@@ -45,10 +48,13 @@ namespace Settings {
         Setting("gpuVtxShader", &gpuVtxShader, false),
         Setting("gpuFragShader", &gpuFragShader, false),
         Setting("unitType", &unitType, false),
+        Setting("sdVirtual", &sdVirtual, false),
         Setting("boot11Path", &boot11Path, true),
         Setting("boot9Path", &boot9Path, true),
         Setting("nandPath", &nandPath, true),
-        Setting("sdPath", &sdPath, true)
+        Setting("sdPath", &sdPath, true),
+        Setting("sdRootPath", &sdRootPath, true),
+        Setting("sdOverlayPath", &sdOverlayPath, true)
     };
 }
 
@@ -68,6 +74,8 @@ bool Settings::load(std::string path) {
         Settings::boot9Path = basePath + "/boot9.bin";
         Settings::nandPath = basePath + "/nand.bin";
         Settings::sdPath = basePath + "/sd.img";
+        Settings::sdRootPath = basePath + "/sdcard";
+        Settings::sdOverlayPath = basePath + "/sd.overlay";
         Settings::save();
         return false;
     }

@@ -65,6 +65,7 @@ namespace {
         if (!strcmp(name, "gpuVtxShader")) return &Settings::gpuVtxShader;
         if (!strcmp(name, "gpuFragShader")) return &Settings::gpuFragShader;
         if (!strcmp(name, "unitType")) return &Settings::unitType;
+        if (!strcmp(name, "sdVirtual")) return &Settings::sdVirtual;
         return nullptr;
     }
 
@@ -74,6 +75,8 @@ namespace {
         if (!strcmp(name, "boot9Path")) return &Settings::boot9Path;
         if (!strcmp(name, "nandPath")) return &Settings::nandPath;
         if (!strcmp(name, "sdPath")) return &Settings::sdPath;
+        if (!strcmp(name, "sdRootPath")) return &Settings::sdRootPath;
+        if (!strcmp(name, "sdOverlayPath")) return &Settings::sdOverlayPath;
         return nullptr;
     }
 

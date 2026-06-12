@@ -40,11 +40,14 @@ namespace Settings {
     extern int gpuVtxShader;
     extern int gpuFragShader;
     extern int unitType;
+    extern int sdVirtual;
 
     extern std::string boot11Path;
     extern std::string boot9Path;
     extern std::string nandPath;
     extern std::string sdPath;
+    extern std::string sdRootPath;
+    extern std::string sdOverlayPath;
     extern std::string basePath;
 
     void add(std::vector<Setting> &extra);

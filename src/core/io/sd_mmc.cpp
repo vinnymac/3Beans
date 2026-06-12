@@ -20,6 +20,7 @@
 #include <cstring>
 #include "../core.h"
 #include "file_block.h"
+#include "virtual_fat.h"
 
 SdMmc::~SdMmc() {
     // Close the NAND file and SD device (only the owning port 0 holds them)
@@ -29,8 +30,12 @@ SdMmc::~SdMmc() {
 }
 
 bool SdMmc::init(SdMmc &other) {
-    // Open an SD card backing store to share between ports
-    other.sd = sd = new FileBlock(Settings::sdPath);
+    // Open an SD card backing store to share between ports: either a virtual
+    // FAT32 card synthesized from a host folder, or a plain sd.img file
+    if (Settings::sdVirtual)
+        other.sd = sd = new VirtualFatBlock(Settings::sdRootPath, Settings::sdOverlayPath);
+    else
+        other.sd = sd = new FileBlock(Settings::sdPath);
     other.id = 1;
 
     // Check the SD's capacity so cards over 2GB can be handled differently
