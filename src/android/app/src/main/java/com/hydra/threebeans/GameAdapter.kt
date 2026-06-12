@@ -22,14 +22,31 @@ package com.hydra.threebeans
 import android.net.Uri
 import android.view.LayoutInflater
 import android.view.ViewGroup
+import androidx.core.view.isVisible
 import androidx.recyclerview.widget.RecyclerView
 import com.hydra.threebeans.databinding.ItemGameBinding
 import java.util.Locale
 
-data class GameItem(val name: String, val uri: Uri, val size: Long)
+data class GameItem(
+    val name: String,
+    val uri: Uri,
+    val size: Long,
+    val metadata: GameInfo.Metadata = GameInfo.Metadata()
+) {
+    // SMDH title when available, otherwise the file name
+    val displayTitle: String
+        get() = metadata.title ?: name.substringBeforeLast('.')
 
-class GameAdapter(private val onClick: (GameItem) -> Unit) :
-    RecyclerView.Adapter<GameAdapter.Holder>() {
+    // Stable key for per-game settings: title ID when the header parses,
+    // otherwise the file name
+    val gameKey: String
+        get() = metadata.titleId ?: name
+}
+
+class GameAdapter(
+    private val onClick: (GameItem) -> Unit,
+    private val onLongClick: (GameItem) -> Unit = {}
+) : RecyclerView.Adapter<GameAdapter.Holder>() {
 
     private var games: List<GameItem> = emptyList()
 
@@ -47,12 +64,24 @@ class GameAdapter(private val onClick: (GameItem) -> Unit) :
 
     override fun onBindViewHolder(holder: Holder, position: Int) {
         val game = games[position]
-        val title = game.name.substringBeforeLast('.')
-        holder.binding.gameTitle.text = title
-        holder.binding.gameLetter.text =
-            title.firstOrNull { it.isLetterOrDigit() }?.uppercase() ?: "?"
-        holder.binding.gameSize.text = formatSize(game.size)
+        holder.binding.gameTitle.text = game.displayTitle
+        val icon = game.metadata.icon
+        holder.binding.gameIcon.isVisible = icon != null
+        holder.binding.gameLetter.isVisible = icon == null
+        if (icon != null) {
+            holder.binding.gameIcon.setImageBitmap(icon)
+        } else {
+            holder.binding.gameLetter.text =
+                game.displayTitle.firstOrNull { it.isLetterOrDigit() }?.uppercase() ?: "?"
+        }
+        val size = formatSize(game.size)
+        holder.binding.gameSize.text = game.metadata.publisher
+            ?.let { "$it · $size" } ?: size
         holder.binding.root.setOnClickListener { onClick(game) }
+        holder.binding.root.setOnLongClickListener {
+            onLongClick(game)
+            true
+        }
     }
 
     private fun formatSize(bytes: Long): String = when {

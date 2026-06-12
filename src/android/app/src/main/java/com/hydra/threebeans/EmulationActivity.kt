@@ -19,6 +19,8 @@
 
 package com.hydra.threebeans
 
+import android.content.res.Configuration
+import android.graphics.Rect
 import android.media.AudioAttributes
 import android.media.AudioFormat
 import android.media.AudioTrack
@@ -40,9 +42,13 @@ import com.hydra.threebeans.databinding.ActivityEmulationBinding
 
 class EmulationActivity : AppCompatActivity() {
     private lateinit var binding: ActivityEmulationBinding
+    private lateinit var renderer: EmulationRenderer
+    private lateinit var secondaryDisplay: SecondaryDisplay
     private var cartPath = ""
+    private var gameKey: String? = null
     private var coreStarted = false
     private var audioThread: Thread? = null
+    private var keyMap: Map<Int, Int> = emptyMap()
     private val fpsUpdater = object : Runnable {
         override fun run() {
             binding.fpsText.text = getString(R.string.fps_format, NativeLibrary.getFps())
@@ -63,18 +69,47 @@ class EmulationActivity : AppCompatActivity() {
             systemBarsBehavior = WindowInsetsControllerCompat.BEHAVIOR_SHOW_TRANSIENT_BARS_BY_SWIPE
         }
 
+        // The external display, when one is connected and enabled, takes a
+        // screen away from the primary layout
+        secondaryDisplay = SecondaryDisplay(this) { renderer.invalidateLayout() }
+        secondaryDisplay.register()
+
+        renderer = EmulationRenderer(
+            pullsFrames = true,
+            computeLayout = { w, h -> ScreenLayout.compute(w, h, primaryConfig()) },
+            onLayout = { layout ->
+                binding.overlay.post { binding.overlay.bottomScreen = layout.touch ?: Rect() }
+            }
+        )
         binding.glSurface.setEGLContextClientVersion(2)
         binding.glSurface.preserveEGLContextOnPause = true
-        binding.glSurface.setRenderer(EmulationRenderer { layout ->
-            binding.overlay.post { binding.overlay.bottomScreen = layout.bottom }
-        })
+        binding.glSurface.setRenderer(renderer)
 
         binding.menuButton.setOnClickListener { showMenu() }
+        binding.editorSave.setOnClickListener { saveLayoutEdits() }
+        binding.editorReset.setOnClickListener { binding.layoutEditor.reset() }
+        binding.editorCancel.setOnClickListener { exitLayoutEditor() }
         onBackPressedDispatcher.addCallback(this, object : OnBackPressedCallback(true) {
-            override fun handleOnBackPressed() = showMenu()
+            override fun handleOnBackPressed() {
+                if (binding.layoutEditor.isVisible) exitLayoutEditor() else showMenu()
+            }
         })
 
         startEmulation()
+    }
+
+    // The screens shown on this display: both normally, or whatever the
+    // external display isn't already showing
+    private fun primaryConfig(): ScreenLayout.Config {
+        val config = ScreenLayout.loadConfig(PreferenceManager.getDefaultSharedPreferences(this))
+        val secondary = secondaryDisplay.activeScreens
+        return when {
+            secondary.isEmpty() -> config
+            // With both (or the top) screen external, keep the touchscreen here
+            secondary.contains(ScreenLayout.Screen.TOP) ->
+                config.copy(screens = setOf(ScreenLayout.Screen.BOTTOM))
+            else -> config.copy(screens = setOf(ScreenLayout.Screen.TOP))
+        }
     }
 
     private fun startEmulation() {
@@ -97,6 +132,12 @@ class EmulationActivity : AppCompatActivity() {
             cartPath = path
         }
 
+        // Apply per-game overrides after system files saved the globals,
+        // so they affect only this emulation session
+        gameKey = intent.getStringExtra(EXTRA_GAME_KEY)
+        gameKey?.let { PerGameSettings.apply(this, it) }
+
+        FrameStore.reset()
         if (NativeLibrary.startCore(cartPath) != 0) {
             showFatalDialog(getString(R.string.error_boot_roms))
             return
@@ -119,6 +160,11 @@ class EmulationActivity : AppCompatActivity() {
         binding.fpsText.removeCallbacks(fpsUpdater)
         if (binding.fpsText.isVisible) binding.fpsText.post(fpsUpdater)
 
+        // Layout settings or controller bindings may have changed while away
+        keyMap = KeyMap.load(this)
+        secondaryDisplay.update()
+        renderer.invalidateLayout()
+
         if (coreStarted) {
             NativeLibrary.resumeCore()
             startAudio()
@@ -129,6 +175,7 @@ class EmulationActivity : AppCompatActivity() {
         super.onPause()
         binding.glSurface.onPause()
         binding.fpsText.removeCallbacks(fpsUpdater)
+        secondaryDisplay.dismiss()
         // Pause the core before stopping audio; the FPS limiter blocks the
         // core thread until the audio consumer drains its buffer
         if (coreStarted) NativeLibrary.pauseCore()
@@ -137,8 +184,11 @@ class EmulationActivity : AppCompatActivity() {
 
     override fun onDestroy() {
         super.onDestroy()
+        secondaryDisplay.release()
         if (coreStarted) NativeLibrary.stopCore()
         SystemFiles.closeCart()
+        // Drop any per-game overrides from the core's live settings
+        NativeLibrary.loadSettings(SystemFiles.basePath(this).absolutePath)
     }
 
     private fun startAudio() {
@@ -186,11 +236,13 @@ class EmulationActivity : AppCompatActivity() {
     }
 
     private fun showMenu() {
-        val showOverlay = PreferenceManager.getDefaultSharedPreferences(this)
-            .getBoolean("showOverlay", true)
+        val prefs = PreferenceManager.getDefaultSharedPreferences(this)
+        val showOverlay = prefs.getBoolean("showOverlay", true)
         val items = arrayOf(
             getString(R.string.menu_resume),
             getString(R.string.menu_restart),
+            getString(R.string.menu_swap_screens),
+            getString(R.string.menu_edit_layout),
             getString(if (showOverlay) R.string.menu_hide_controls else R.string.menu_show_controls),
             getString(R.string.menu_settings),
             getString(R.string.menu_quit)
@@ -200,22 +252,78 @@ class EmulationActivity : AppCompatActivity() {
             .setItems(items) { dialog, which ->
                 when (which) {
                     1 -> {
+                        // startCore stops and replaces any live core itself
+                        FrameStore.reset()
                         if (coreStarted && NativeLibrary.startCore(cartPath) == 0) {
                             NativeLibrary.resumeCore()
                         }
                     }
                     2 -> {
-                        PreferenceManager.getDefaultSharedPreferences(this).edit()
-                            .putBoolean("showOverlay", !showOverlay).apply()
+                        prefs.edit().putBoolean(
+                            ScreenLayout.PREF_SWAP,
+                            !prefs.getBoolean(ScreenLayout.PREF_SWAP, false)
+                        ).apply()
+                        renderer.invalidateLayout()
+                        secondaryDisplay.dismiss()
+                        secondaryDisplay.update()
+                    }
+                    3 -> enterLayoutEditor()
+                    4 -> {
+                        prefs.edit().putBoolean("showOverlay", !showOverlay).apply()
                         binding.overlay.isEnabled = !showOverlay
                         binding.overlay.invalidate()
                     }
-                    3 -> startActivity(android.content.Intent(this, SettingsActivity::class.java))
-                    4 -> finish()
+                    5 -> {
+                        // Per-game overrides are live in the core, so route
+                        // core-setting edits to the override store rather
+                        // than letting them leak into the global ini
+                        val intent = android.content.Intent(this, SettingsActivity::class.java)
+                        gameKey?.let {
+                            intent.putExtra(SettingsActivity.EXTRA_GAME_KEY, it)
+                            intent.putExtra(
+                                SettingsActivity.EXTRA_GAME_NAME,
+                                this.intent.getStringExtra(EXTRA_GAME_NAME) ?: it
+                            )
+                        }
+                        startActivity(intent)
+                    }
+                    6 -> finish()
                 }
                 dialog.dismiss()
             }
             .show()
+    }
+
+    private fun enterLayoutEditor() {
+        binding.layoutEditor.isVisible = true
+        binding.editorBar.isVisible = true
+        binding.overlay.isVisible = false
+        binding.menuButton.isVisible = false
+        binding.layoutEditor.post {
+            binding.layoutEditor.begin(PreferenceManager.getDefaultSharedPreferences(this))
+        }
+    }
+
+    private fun exitLayoutEditor() {
+        binding.layoutEditor.isVisible = false
+        binding.editorBar.isVisible = false
+        binding.overlay.isVisible = true
+        binding.menuButton.isVisible = true
+    }
+
+    // Persist the edited rectangles and switch this orientation's layout
+    // mode to custom so the result is visible immediately
+    private fun saveLayoutEdits() {
+        val prefs = PreferenceManager.getDefaultSharedPreferences(this)
+        binding.layoutEditor.save(prefs)
+        val portrait = resources.configuration.orientation == Configuration.ORIENTATION_PORTRAIT
+        prefs.edit().putString(
+            if (portrait) ScreenLayout.PREF_PORTRAIT else ScreenLayout.PREF_MODE,
+            (if (portrait) ScreenLayout.PortraitLayout.CUSTOM_LAYOUT.ordinal
+            else ScreenLayout.LayoutMode.CUSTOM_LAYOUT.ordinal).toString()
+        ).apply()
+        renderer.invalidateLayout()
+        exitLayoutEditor()
     }
 
     private fun showFatalDialog(message: String) {
@@ -227,9 +335,9 @@ class EmulationActivity : AppCompatActivity() {
             .show()
     }
 
-    // Physical gamepad and keyboard input
+    // Physical gamepad and keyboard input through the user's bindings
     override fun dispatchKeyEvent(event: KeyEvent): Boolean {
-        val key = KEY_MAP[event.keyCode]
+        val key = keyMap[event.keyCode]
         if (key == null || event.repeatCount > 0)
             return super.dispatchKeyEvent(event)
         when (event.action) {
@@ -272,20 +380,7 @@ class EmulationActivity : AppCompatActivity() {
 
     companion object {
         const val EXTRA_CART_URI = "cartUri"
-
-        private val KEY_MAP = mapOf(
-            KeyEvent.KEYCODE_BUTTON_A to NativeLibrary.KEY_A,
-            KeyEvent.KEYCODE_BUTTON_B to NativeLibrary.KEY_B,
-            KeyEvent.KEYCODE_BUTTON_X to NativeLibrary.KEY_X,
-            KeyEvent.KEYCODE_BUTTON_Y to NativeLibrary.KEY_Y,
-            KeyEvent.KEYCODE_BUTTON_L1 to NativeLibrary.KEY_L,
-            KeyEvent.KEYCODE_BUTTON_R1 to NativeLibrary.KEY_R,
-            KeyEvent.KEYCODE_BUTTON_START to NativeLibrary.KEY_START,
-            KeyEvent.KEYCODE_BUTTON_SELECT to NativeLibrary.KEY_SELECT,
-            KeyEvent.KEYCODE_DPAD_UP to NativeLibrary.KEY_UP,
-            KeyEvent.KEYCODE_DPAD_DOWN to NativeLibrary.KEY_DOWN,
-            KeyEvent.KEYCODE_DPAD_LEFT to NativeLibrary.KEY_LEFT,
-            KeyEvent.KEYCODE_DPAD_RIGHT to NativeLibrary.KEY_RIGHT
-        )
+        const val EXTRA_GAME_KEY = "gameKey"
+        const val EXTRA_GAME_NAME = "gameName"
     }
 }

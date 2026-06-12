@@ -1,0 +1,14 @@
+<?xml version="1.0" encoding="utf-8"?>
+<menu xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto">
+
+    <item
+        android:id="@+id/action_auto_map"
+        android:title="@string/mapping_auto_map"
+        app:showAsAction="never" />
+
+    <item
+        android:id="@+id/action_reset_mapping"
+        android:title="@string/mapping_reset"
+        app:showAsAction="never" />
+</menu>

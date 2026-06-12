@@ -16,6 +16,42 @@
         android:layout_width="match_parent"
         android:layout_height="match_parent" />
 
+    <com.hydra.threebeans.LayoutEditorView
+        android:id="@+id/layoutEditor"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:visibility="gone" />
+
+    <LinearLayout
+        android:id="@+id/editorBar"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_gravity="top|center_horizontal"
+        android:layout_margin="8dp"
+        android:orientation="horizontal"
+        android:visibility="gone">
+
+        <Button
+            android:id="@+id/editorSave"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginEnd="8dp"
+            android:text="@string/layout_editor_save" />
+
+        <Button
+            android:id="@+id/editorReset"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginEnd="8dp"
+            android:text="@string/layout_editor_reset" />
+
+        <Button
+            android:id="@+id/editorCancel"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="@string/layout_editor_cancel" />
+    </LinearLayout>
+
     <TextView
         android:id="@+id/fpsText"
         android:layout_width="wrap_content"

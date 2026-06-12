@@ -27,9 +27,15 @@ import java.nio.FloatBuffer
 import javax.microedition.khronos.egl.EGLConfig
 import javax.microedition.khronos.opengles.GL10
 
-// Draws the combined 400x480 framebuffer from the core as two textured
-// quads, one per 3DS screen, positioned by ScreenLayout
-class EmulationRenderer(private val onLayout: (ScreenLayout.Layout) -> Unit) : GLSurfaceView.Renderer {
+// Draws the combined 400x480 framebuffer from the core as textured quads,
+// one per visible 3DS screen, positioned by a ScreenLayout computation.
+// The primary surface pulls frames from the core through FrameStore; a
+// secondary display surface only mirrors the latest pulled frame.
+class EmulationRenderer(
+    private val pullsFrames: Boolean,
+    private val computeLayout: (Int, Int) -> ScreenLayout.Layout,
+    private val onLayout: (ScreenLayout.Layout) -> Unit = {}
+) : GLSurfaceView.Renderer {
     private val frame: ByteBuffer =
         ByteBuffer.allocateDirect(NativeLibrary.FRAME_WIDTH * NativeLibrary.FRAME_HEIGHT * 4)
             .order(ByteOrder.nativeOrder())
@@ -38,9 +44,17 @@ class EmulationRenderer(private val onLayout: (ScreenLayout.Layout) -> Unit) : G
     private var texture = 0
     private var aPos = 0
     private var aTex = 0
-    private var topVerts: FloatBuffer = floatBuffer(16)
-    private var bottomVerts: FloatBuffer = floatBuffer(16)
-    private var hasFrame = false
+    private var quads: List<FloatBuffer> = emptyList()
+    private var sequence = -1L
+    private var surfaceWidth = 0
+    private var surfaceHeight = 0
+    @Volatile private var layoutDirty = false
+
+    // Recompute quad positions on the GL thread before the next frame,
+    // for layout settings changed while the surface is live
+    fun invalidateLayout() {
+        layoutDirty = true
+    }
 
     override fun onSurfaceCreated(gl: GL10?, config: EGLConfig?) {
         val vertexShader = compile(
@@ -85,40 +99,61 @@ class EmulationRenderer(private val onLayout: (ScreenLayout.Layout) -> Unit) : G
             GLES20.GL_TEXTURE_2D, 0, GLES20.GL_RGBA, NativeLibrary.FRAME_WIDTH,
             NativeLibrary.FRAME_HEIGHT, 0, GLES20.GL_RGBA, GLES20.GL_UNSIGNED_BYTE, null
         )
-        hasFrame = false
+        // Force a fresh copy and upload into the recreated GL context
+        sequence = -1
     }
 
     override fun onSurfaceChanged(gl: GL10?, width: Int, height: Int) {
         GLES20.glViewport(0, 0, width, height)
-        val layout = ScreenLayout.compute(width, height)
+        surfaceWidth = width
+        surfaceHeight = height
+        rebuildLayout()
+    }
 
-        // Top screen occupies the upper half of the texture; the bottom
-        // screen sits in the lower half with a 40-texel margin on each side
-        setQuad(topVerts, layout.top, width, height, 0f, 0f, 1f, 0.5f)
-        setQuad(bottomVerts, layout.bottom, width, height, 40f / 400, 0.5f, 360f / 400, 1f)
+    private fun rebuildLayout() {
+        val layout = computeLayout(surfaceWidth, surfaceHeight)
+        quads = layout.quads.map { quad ->
+            val verts = floatBuffer(16)
+            when (quad.screen) {
+                // Top screen occupies the upper half of the texture; the bottom
+                // screen sits in the lower half with a 40-texel margin per side
+                ScreenLayout.Screen.TOP ->
+                    setQuad(verts, quad.rect, 0f, 0f, 1f, 0.5f)
+                ScreenLayout.Screen.BOTTOM ->
+                    setQuad(verts, quad.rect, 40f / 400, 0.5f, 360f / 400, 1f)
+            }
+            verts
+        }
         onLayout(layout)
     }
 
     override fun onDrawFrame(gl: GL10?) {
-        // Upload a new frame from the core if one is ready
-        if (NativeLibrary.copyFrame(frame)) {
-            frame.position(0)
+        if (layoutDirty) {
+            layoutDirty = false
+            rebuildLayout()
+        }
+
+        // Upload the latest frame when a newer one is available
+        if (pullsFrames) FrameStore.pull()
+        val latest = FrameStore.copyInto(frame, sequence)
+        if (latest != sequence && latest > 0) {
+            frame.rewind()
             GLES20.glBindTexture(GLES20.GL_TEXTURE_2D, texture)
             GLES20.glTexSubImage2D(
                 GLES20.GL_TEXTURE_2D, 0, 0, 0, NativeLibrary.FRAME_WIDTH,
                 NativeLibrary.FRAME_HEIGHT, GLES20.GL_RGBA, GLES20.GL_UNSIGNED_BYTE, frame
             )
-            hasFrame = true
         }
+        sequence = latest
 
         GLES20.glClearColor(0f, 0f, 0f, 1f)
         GLES20.glClear(GLES20.GL_COLOR_BUFFER_BIT)
-        if (!hasFrame) return
+        if (sequence <= 0) return
 
         GLES20.glUseProgram(program)
         GLES20.glBindTexture(GLES20.GL_TEXTURE_2D, texture)
-        drawQuad(topVerts)
-        drawQuad(bottomVerts)
+        for (verts in quads)
+            drawQuad(verts)
     }
 
     private fun drawQuad(verts: FloatBuffer) {
@@ -132,13 +167,13 @@ class EmulationRenderer(private val onLayout: (ScreenLayout.Layout) -> Unit) : G
     }
 
     private fun setQuad(
-        verts: FloatBuffer, rect: android.graphics.Rect, width: Int, height: Int,
+        verts: FloatBuffer, rect: android.graphics.Rect,
         u0: Float, v0: Float, u1: Float, v1: Float
     ) {
-        val l = 2f * rect.left / width - 1
-        val r = 2f * rect.right / width - 1
-        val t = 1 - 2f * rect.top / height
-        val b = 1 - 2f * rect.bottom / height
+        val l = 2f * rect.left / surfaceWidth - 1
+        val r = 2f * rect.right / surfaceWidth - 1
+        val t = 1 - 2f * rect.top / surfaceHeight
+        val b = 1 - 2f * rect.bottom / surfaceHeight
         verts.position(0)
         verts.put(floatArrayOf(
             l, t, u0, v0,

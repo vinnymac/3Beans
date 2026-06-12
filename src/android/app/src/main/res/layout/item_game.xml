@@ -15,14 +15,28 @@
         android:layout_height="wrap_content"
         android:orientation="vertical">
 
-        <TextView
-            android:id="@+id/gameLetter"
+        <FrameLayout
             android:layout_width="match_parent"
             android:layout_height="96dp"
-            android:background="?attr/colorSecondaryContainer"
-            android:gravity="center"
-            android:textColor="?attr/colorOnSecondaryContainer"
-            android:textSize="48sp" />
+            android:background="?attr/colorSecondaryContainer">
+
+            <TextView
+                android:id="@+id/gameLetter"
+                android:layout_width="match_parent"
+                android:layout_height="match_parent"
+                android:gravity="center"
+                android:textColor="?attr/colorOnSecondaryContainer"
+                android:textSize="48sp" />
+
+            <ImageView
+                android:id="@+id/gameIcon"
+                android:layout_width="72dp"
+                android:layout_height="72dp"
+                android:layout_gravity="center"
+                android:importantForAccessibility="no"
+                android:scaleType="fitCenter"
+                android:visibility="gone" />
+        </FrameLayout>
 
         <TextView
             android:id="@+id/gameTitle"
@@ -42,6 +56,8 @@
             android:paddingStart="12dp"
             android:paddingEnd="12dp"
             android:paddingBottom="12dp"
+            android:maxLines="1"
+            android:ellipsize="end"
             android:textAppearance="?attr/textAppearanceBodySmall" />
     </LinearLayout>
 </com.google.android.material.card.MaterialCardView>

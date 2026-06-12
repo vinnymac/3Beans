@@ -19,6 +19,7 @@
 
 package com.hydra.threebeans
 
+import android.content.Intent
 import android.os.Bundle
 import androidx.appcompat.app.AppCompatActivity
 import androidx.preference.ListPreference
@@ -37,9 +38,19 @@ class SettingsActivity : AppCompatActivity() {
         setSupportActionBar(binding.toolbar)
         supportActionBar?.setDisplayHomeAsUpEnabled(true)
 
+        // A game key switches the screen to per-game override mode
+        val gameName = intent.getStringExtra(EXTRA_GAME_NAME)
+        if (gameName != null)
+            supportActionBar?.title = getString(R.string.per_game_title, gameName)
+
         if (savedInstanceState == null) {
+            val fragment = SettingsFragment().apply {
+                arguments = Bundle().apply {
+                    putString(EXTRA_GAME_KEY, intent.getStringExtra(EXTRA_GAME_KEY))
+                }
+            }
             supportFragmentManager.beginTransaction()
-                .replace(R.id.settings_container, SettingsFragment())
+                .replace(R.id.settings_container, fragment)
                 .commit()
         }
     }
@@ -50,11 +61,15 @@ class SettingsActivity : AppCompatActivity() {
     }
 
     class SettingsFragment : PreferenceFragmentCompat() {
+        private val gameKey: String?
+            get() = arguments?.getString(EXTRA_GAME_KEY)
+
         override fun onCreatePreferences(savedInstanceState: Bundle?, rootKey: String?) {
             val context = preferenceManager.context
             val screen = preferenceManager.createPreferenceScreen(context)
 
-            // Core settings stored in 3beans.ini through the JNI bridge
+            // Core settings stored in 3beans.ini through the JNI bridge,
+            // or as per-game overrides when editing a single game
             val coreCategory = PreferenceCategory(context).apply {
                 title = getString(R.string.pref_category_core)
             }
@@ -71,6 +86,99 @@ class SettingsActivity : AppCompatActivity() {
                 "unitType", R.string.pref_unit_type, R.string.pref_restart_required,
                 arrayOf(getString(R.string.unit_retail), getString(R.string.unit_dev))
             ))
+
+            // In per-game mode the core settings above act as overrides for
+            // one game; every other category still edits the global values
+            val game = gameKey
+            if (game != null) {
+                coreCategory.addPreference(Preference(context).apply {
+                    setTitle(R.string.per_game_clear)
+                    setSummary(R.string.per_game_clear_desc)
+                    isIconSpaceReserved = false
+                    setOnPreferenceClickListener {
+                        PerGameSettings.clear(context, game)
+                        // Rebuild so every row shows the global value again
+                        onCreatePreferences(null, null)
+                        true
+                    }
+                })
+            }
+
+            // Screen layout preferences used by the GL renderer
+            val layoutCategory = PreferenceCategory(context).apply {
+                title = getString(R.string.pref_category_layout)
+            }
+            screen.addPreference(layoutCategory)
+
+            layoutCategory.addPreference(listPref(
+                ScreenLayout.PREF_MODE, R.string.pref_layout_mode,
+                ScreenLayout.LayoutMode.SIDE_SCREEN.ordinal,
+                arrayOf(
+                    getString(R.string.layout_original),
+                    getString(R.string.layout_single_screen),
+                    getString(R.string.layout_large_screen),
+                    getString(R.string.layout_side_by_side),
+                    getString(R.string.layout_hybrid),
+                    getString(R.string.layout_custom)
+                )
+            ))
+            layoutCategory.addPreference(listPref(
+                ScreenLayout.PREF_SMALL_POSITION, R.string.pref_small_position,
+                ScreenLayout.SmallScreenPosition.BOTTOM_RIGHT.ordinal,
+                arrayOf(
+                    getString(R.string.position_top_right),
+                    getString(R.string.position_middle_right),
+                    getString(R.string.position_bottom_right),
+                    getString(R.string.position_top_left),
+                    getString(R.string.position_middle_left),
+                    getString(R.string.position_bottom_left),
+                    getString(R.string.position_above),
+                    getString(R.string.position_below)
+                )
+            ))
+            layoutCategory.addPreference(listPref(
+                ScreenLayout.PREF_PORTRAIT, R.string.pref_portrait_layout,
+                ScreenLayout.PortraitLayout.TOP_FULL_WIDTH.ordinal,
+                arrayOf(
+                    getString(R.string.portrait_top_full),
+                    getString(R.string.layout_original),
+                    getString(R.string.layout_custom)
+                )
+            ))
+            layoutCategory.addPreference(SwitchPreferenceCompat(context).apply {
+                key = ScreenLayout.PREF_SWAP
+                setTitle(R.string.pref_swap_screens)
+                setSummary(R.string.pref_swap_screens_desc)
+                setDefaultValue(false)
+                isIconSpaceReserved = false
+            })
+            layoutCategory.addPreference(listPref(
+                ScreenLayout.PREF_SECONDARY, R.string.pref_secondary_display,
+                ScreenLayout.SecondaryDisplayLayout.NONE.ordinal,
+                arrayOf(
+                    getString(R.string.secondary_none),
+                    getString(R.string.secondary_top),
+                    getString(R.string.secondary_bottom),
+                    getString(R.string.layout_side_by_side)
+                ),
+                R.string.pref_secondary_display_desc
+            ))
+
+            // Physical controller input
+            val inputCategory = PreferenceCategory(context).apply {
+                title = getString(R.string.pref_category_input)
+            }
+            screen.addPreference(inputCategory)
+
+            inputCategory.addPreference(Preference(context).apply {
+                setTitle(R.string.pref_controller_mapping)
+                setSummary(R.string.pref_controller_mapping_desc)
+                isIconSpaceReserved = false
+                setOnPreferenceClickListener {
+                    startActivity(Intent(context, ControllerMappingActivity::class.java))
+                    true
+                }
+            })
 
             // Frontend preferences stored in default SharedPreferences
             val appCategory = PreferenceCategory(context).apply {
@@ -118,17 +226,50 @@ class SettingsActivity : AppCompatActivity() {
             preferenceScreen = screen
         }
 
+        // A persistent ListPreference for frontend settings, stored by
+        // enum ordinal in string form
+        private fun listPref(
+            name: String, title: Int, default: Int, options: Array<String>, summary: Int? = null
+        ): ListPreference = ListPreference(requireContext()).apply {
+            key = name
+            setTitle(title)
+            entries = options
+            entryValues = options.indices.map { it.toString() }.toTypedArray()
+            setDefaultValue(default.toString())
+            summaryProvider = Preference.SummaryProvider<ListPreference> { pref ->
+                if (summary != null) "${pref.entry} — ${getString(summary)}" else "${pref.entry}"
+            }
+            isIconSpaceReserved = false
+        }
+
+        // The current value shown for a core setting: the per-game override
+        // when editing a game, otherwise the global value
+        private fun coreValue(name: String): Int {
+            val game = gameKey ?: return NativeLibrary.getSettingInt(name)
+            return PerGameSettings.get(requireContext(), game, name)
+                ?: NativeLibrary.getSettingInt(name)
+        }
+
+        private fun storeCoreValue(name: String, value: Int) {
+            val game = gameKey
+            if (game != null) {
+                PerGameSettings.set(requireContext(), game, name, value)
+            } else {
+                NativeLibrary.setSettingInt(name, value)
+                NativeLibrary.saveSettings()
+            }
+        }
+
         private fun coreSwitch(name: String, title: Int, summary: Int): SwitchPreferenceCompat =
             SwitchPreferenceCompat(requireContext()).apply {
                 key = name
                 setTitle(title)
                 setSummary(summary)
                 isPersistent = false
-                isChecked = NativeLibrary.getSettingInt(name) != 0
+                isChecked = coreValue(name) != 0
                 isIconSpaceReserved = false
                 onPreferenceChangeListener = Preference.OnPreferenceChangeListener { _, value ->
-                    NativeLibrary.setSettingInt(name, if (value as Boolean) 1 else 0)
-                    NativeLibrary.saveSettings()
+                    storeCoreValue(name, if (value as Boolean) 1 else 0)
                     true
                 }
             }
@@ -140,16 +281,20 @@ class SettingsActivity : AppCompatActivity() {
                 entries = options
                 entryValues = options.indices.map { it.toString() }.toTypedArray()
                 isPersistent = false
-                value = NativeLibrary.getSettingInt(name).toString()
+                value = coreValue(name).toString()
                 summaryProvider = Preference.SummaryProvider<ListPreference> { pref ->
                     "${pref.entry} — ${getString(summary)}"
                 }
                 isIconSpaceReserved = false
                 onPreferenceChangeListener = Preference.OnPreferenceChangeListener { _, value ->
-                    NativeLibrary.setSettingInt(name, (value as String).toInt())
-                    NativeLibrary.saveSettings()
+                    storeCoreValue(name, (value as String).toInt())
                     true
                 }
             }
+    }
+
+    companion object {
+        const val EXTRA_GAME_KEY = "gameKey"
+        const val EXTRA_GAME_NAME = "gameName"
     }
 }

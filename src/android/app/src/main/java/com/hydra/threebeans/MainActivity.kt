@@ -31,6 +31,7 @@ import androidx.core.view.isVisible
 import androidx.documentfile.provider.DocumentFile
 import androidx.lifecycle.lifecycleScope
 import androidx.recyclerview.widget.GridLayoutManager
+import com.google.android.material.dialog.MaterialAlertDialogBuilder
 import com.hydra.threebeans.databinding.ActivityMainBinding
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
@@ -38,7 +39,10 @@ import kotlinx.coroutines.withContext
 
 class MainActivity : AppCompatActivity() {
     private lateinit var binding: ActivityMainBinding
-    private val adapter = GameAdapter { game -> launchGame(game.uri) }
+    private val adapter = GameAdapter(
+        onClick = { game -> launchGame(game) },
+        onLongClick = { game -> showGameMenu(game) }
+    )
 
     private val pickFolder = registerForActivityResult(
         ActivityResultContracts.OpenDocumentTree()
@@ -67,6 +71,28 @@ class MainActivity : AppCompatActivity() {
             startActivity(Intent(this, SystemFilesActivity::class.java))
         }
         binding.homeMenuFab.setOnClickListener { launchGame(null) }
+    }
+
+    private fun showGameMenu(game: GameItem) {
+        val items = arrayOf(
+            getString(R.string.game_menu_play),
+            getString(R.string.game_menu_settings)
+        )
+        MaterialAlertDialogBuilder(this)
+            .setTitle(game.displayTitle)
+            .setItems(items) { dialog, which ->
+                when (which) {
+                    0 -> launchGame(game)
+                    1 -> {
+                        val intent = Intent(this, SettingsActivity::class.java)
+                        intent.putExtra(SettingsActivity.EXTRA_GAME_KEY, game.gameKey)
+                        intent.putExtra(SettingsActivity.EXTRA_GAME_NAME, game.displayTitle)
+                        startActivity(intent)
+                    }
+                }
+                dialog.dismiss()
+            }
+            .show()
     }
 
     override fun onResume() {
@@ -133,15 +159,19 @@ class MainActivity : AppCompatActivity() {
                 val name = file.name ?: continue
                 val ext = name.substringAfterLast('.', "").lowercase()
                 if (ext == "3ds" || ext == "cci")
-                    games.add(GameItem(name, file.uri, file.length()))
+                    games.add(GameItem(name, file.uri, file.length(), GameInfo.parse(this, file.uri)))
             }
         }
-        return games.sortedBy { it.name.lowercase() }
+        return games.sortedBy { it.displayTitle.lowercase() }
     }
 
-    private fun launchGame(uri: Uri?) {
+    private fun launchGame(game: GameItem?) {
         val intent = Intent(this, EmulationActivity::class.java)
-        if (uri != null) intent.putExtra(EmulationActivity.EXTRA_CART_URI, uri.toString())
+        if (game != null) {
+            intent.putExtra(EmulationActivity.EXTRA_CART_URI, game.uri.toString())
+            intent.putExtra(EmulationActivity.EXTRA_GAME_KEY, game.gameKey)
+            intent.putExtra(EmulationActivity.EXTRA_GAME_NAME, game.displayTitle)
+        }
         startActivity(intent)
     }
 
