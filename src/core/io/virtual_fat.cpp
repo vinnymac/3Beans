@@ -40,6 +40,38 @@ namespace {
 void putLE16(uint8_t *p, uint16_t v) { p[0] = v; p[1] = v >> 8; }
 void putLE32(uint8_t *p, uint32_t v) { p[0] = v; p[1] = v >> 8; p[2] = v >> 16; p[3] = v >> 24; }
 
+// Little-endian appenders/readers for the overlay sidecar serialization
+void wr8(std::vector<uint8_t> &b, uint8_t v) { b.push_back(v); }
+void wr16(std::vector<uint8_t> &b, uint16_t v) { b.push_back(v); b.push_back(v >> 8); }
+void wr32(std::vector<uint8_t> &b, uint32_t v) { for (int i = 0; i < 4; i++) b.push_back(v >> (8 * i)); }
+void wr64(std::vector<uint8_t> &b, uint64_t v) { for (int i = 0; i < 8; i++) b.push_back(v >> (8 * i)); }
+void wrStr(std::vector<uint8_t> &b, const std::string &s) {
+    wr32(b, uint32_t(s.size()));
+    b.insert(b.end(), s.begin(), s.end());
+}
+
+// Bounds-checked readers advancing p; set ok=false on overrun (corrupt sidecar)
+uint8_t rd8(const uint8_t *&p, const uint8_t *end, bool &ok) {
+    if (p + 1 > end) { ok = false; return 0; }
+    return *p++;
+}
+uint16_t rd16(const uint8_t *&p, const uint8_t *end, bool &ok) {
+    uint16_t v = rd8(p, end, ok); return v | (uint16_t(rd8(p, end, ok)) << 8);
+}
+uint32_t rd32(const uint8_t *&p, const uint8_t *end, bool &ok) {
+    uint32_t v = 0; for (int i = 0; i < 4; i++) v |= uint32_t(rd8(p, end, ok)) << (8 * i); return v;
+}
+uint64_t rd64(const uint8_t *&p, const uint8_t *end, bool &ok) {
+    uint64_t lo = rd32(p, end, ok), hi = rd32(p, end, ok); return lo | (hi << 32);
+}
+std::string rdStr(const uint8_t *&p, const uint8_t *end, bool &ok) {
+    uint32_t n = rd32(p, end, ok);
+    if (!ok || p + n > end) { ok = false; return std::string(); }
+    std::string s((const char*)p, n); p += n; return s;
+}
+
+const char OVERLAY_MAGIC[8] = { '3', 'B', 'S', 'D', 'O', 'V', 'L', '1' };
+
 // Decode a UTF-8 string to UTF-16 code units (with surrogate pairs), substituting
 // U+FFFD for malformed sequences so a bad name can never desync the parser
 std::vector<uint16_t> utf8ToUtf16(const std::string &s) {
@@ -174,19 +206,51 @@ VirtualFatBlock::VirtualFatBlock(const std::string &rootPath, const std::string 
     firstDataSector = rsvdSecCnt + numFATs * fatSz;
     countOfClusters = (totalSectors - firstDataSector) / secPerClus;
 
-    // The root path must be an existing directory to back the card
+    // Resume a persisted overlay first (e.g. recovering writes after a crash).
+    // The base is reproduced from the manifest pinned inside the overlay, so its
+    // sectors always refer to the exact layout they were written against.
+    struct stat ost;
+    if (stat(overlayPath.c_str(), &ost) == 0) {
+        if (!loadOverlay()) {
+            // The overlay exists but is unreadable: refuse rather than silently
+            // discarding the guest's writes by falling back to a fresh scan.
+            LOG_CRIT("Virtual SD overlay is unreadable: %s\n", overlayPath.c_str());
+            return;
+        }
+        opened = true;
+
+        // Detect whether the host folder changed under the pinned layout
+        Node fresh;
+        struct stat st;
+        if (stat(rootPath.c_str(), &st) == 0 && S_ISDIR(st.st_mode)) {
+            fresh.isDir = true;
+            fresh.hostPath = rootPath;
+            fatTimestamp(st.st_mtime, fresh.fatDate, fresh.fatTime);
+            scan(rootPath, fresh);
+            drifted = (computeSignature(fresh) != manifestSignature);
+        }
+        else {
+            drifted = true; // the folder vanished out from under the overlay
+        }
+        if (drifted)
+            LOG_CRIT("Virtual SD folder changed since the overlay was pinned\n");
+        return;
+    }
+
+    // Fresh mount: the root path must be an existing directory to back the card
     struct stat st;
     if (stat(rootPath.c_str(), &st) != 0 || !S_ISDIR(st.st_mode)) {
         LOG_CRIT("Virtual SD root is not a directory: %s\n", rootPath.c_str());
         return;
     }
 
-    // Scan the folder into a tree and lay it out into FAT32 clusters
+    // Scan the folder into a tree, lay it out, and pin its layout signature
     root.isDir = true;
     root.hostPath = rootPath;
     fatTimestamp(st.st_mtime, root.fatDate, root.fatTime);
     scan(rootPath, root);
     allocate(root, true);
+    manifestSignature = computeSignature(root);
     opened = true;
     LOG_INFO("Virtual SD card synthesized from %s (%u clusters used)\n",
         rootPath.c_str(), nextFreeCluster - 2);
@@ -451,6 +515,7 @@ bool VirtualFatBlock::read(uint64_t offset, size_t size, void *buffer) {
 
 bool VirtualFatBlock::write(uint64_t offset, size_t size, const void *buffer) {
     if (!opened) return false;
+    dirty = true;
     const uint8_t *in = (const uint8_t*)buffer;
     uint8_t sec[bytesPerSec];
     while (size > 0) {
@@ -463,4 +528,154 @@ bool VirtualFatBlock::write(uint64_t offset, size_t size, const void *buffer) {
         in += chunk; offset += chunk; size -= chunk;
     }
     return true;
+}
+
+uint64_t VirtualFatBlock::computeSignature(const Node &node) const {
+    // FNV-1a over the folder's layout-relevant identity, in deterministic order:
+    // names, the tree structure, and (for files) size and modification time. A
+    // directory's own mtime is excluded — it merely reflects child changes, which
+    // are already captured, and it doesn't affect the cluster layout. So adding
+    // then removing a file restores the signature rather than reporting drift.
+    uint64_t h = 14695981039346656037ULL;
+    auto byte = [&](uint8_t b) { h ^= b; h *= 1099511628211ULL; };
+    auto mix = [&](uint64_t v) { for (int i = 0; i < 8; i++) byte((v >> (8 * i)) & 0xFF); };
+
+    for (char c : node.name) byte(uint8_t(c));
+    byte(node.isDir ? 1 : 0);
+    if (!node.isDir) {
+        mix(node.size);
+        mix((uint64_t(node.fatDate) << 16) | node.fatTime);
+    }
+    for (const Node &c : node.children)
+        mix(computeSignature(c));
+    return h;
+}
+
+void VirtualFatBlock::rebuildExtents(Node &node) {
+    // Recreate the cluster -> node map from a deserialized tree, in the same
+    // ascending order the allocator produced so the list stays sorted
+    if (node.isDir) {
+        extents.push_back({ node.firstCluster, node.clusterCount, &node });
+        for (Node &c : node.children)
+            rebuildExtents(c);
+    }
+    else if (node.clusterCount > 0) {
+        extents.push_back({ node.firstCluster, node.clusterCount, &node });
+    }
+}
+
+void VirtualFatBlock::serializeNode(const Node &node, std::vector<uint8_t> &out) const {
+    wrStr(out, node.name);
+    wrStr(out, node.hostPath);
+    wr8(out, node.isDir ? 1 : 0);
+    wr64(out, node.size);
+    wr16(out, node.fatDate);
+    wr16(out, node.fatTime);
+    wr32(out, node.firstCluster);
+    wr32(out, node.clusterCount);
+    wr32(out, node.parentCluster);
+    wr32(out, uint32_t(node.children.size()));
+    for (const Node &c : node.children)
+        serializeNode(c, out);
+}
+
+void VirtualFatBlock::deserializeNode(Node &node, const uint8_t *&p, const uint8_t *end) {
+    bool ok = true;
+    node.name = rdStr(p, end, ok);
+    node.hostPath = rdStr(p, end, ok);
+    node.isDir = rd8(p, end, ok) != 0;
+    node.size = rd64(p, end, ok);
+    node.fatDate = rd16(p, end, ok);
+    node.fatTime = rd16(p, end, ok);
+    node.firstCluster = rd32(p, end, ok);
+    node.clusterCount = rd32(p, end, ok);
+    node.parentCluster = rd32(p, end, ok);
+    uint32_t count = rd32(p, end, ok);
+    if (!ok || count > (1u << 20)) { p = end + 1; return; } // bail on corruption
+    node.children.resize(count);
+    for (uint32_t i = 0; i < count; i++)
+        deserializeNode(node.children[i], p, end);
+}
+
+bool VirtualFatBlock::loadOverlay() {
+    FILE *f = fopen(overlayPath.c_str(), "rb");
+    if (!f) return false;
+
+    // Slurp the whole sidecar (it only holds written sectors, so it stays small)
+    fseeko(f, 0, SEEK_END);
+    long len = ftello(f);
+    fseeko(f, 0, SEEK_SET);
+    std::vector<uint8_t> buf(len > 0 ? len : 0);
+    if (len <= 0 || fread(buf.data(), 1, len, f) != size_t(len)) { fclose(f); return false; }
+    fclose(f);
+
+    const uint8_t *p = buf.data(), *end = p + buf.size();
+    bool ok = true;
+    if (buf.size() < 8 || memcmp(p, OVERLAY_MAGIC, 8) != 0) return false;
+    p += 8;
+    uint32_t version = rd32(p, end, ok);
+    uint32_t flags = rd32(p, end, ok);
+    uint32_t storedTotal = rd32(p, end, ok);
+    uint32_t storedFatSz = rd32(p, end, ok);
+    uint32_t storedFirstData = rd32(p, end, ok);
+    nextFreeCluster = rd32(p, end, ok);
+    manifestSignature = rd64(p, end, ok);
+    if (!ok || version != 1 || storedTotal != totalSectors ||
+        storedFatSz != fatSz || storedFirstData != firstDataSector)
+        return false;
+
+    // Manifest (the pinned folder layout) then the overlaid sectors
+    deserializeNode(root, p, end);
+    uint32_t sectorCount = rd32(p, end, ok);
+    if (!ok) return false;
+    overlay.clear();
+    for (uint32_t i = 0; i < sectorCount; i++) {
+        uint32_t sector = rd32(p, end, ok);
+        if (!ok || p + bytesPerSec > end) return false;
+        std::vector<uint8_t> &slot = overlay[sector];
+        slot.assign(p, p + bytesPerSec);
+        p += bytesPerSec;
+    }
+
+    rebuildExtents(root);
+    dirty = (flags & 1) != 0;
+    return true;
+}
+
+void VirtualFatBlock::saveOverlay() {
+    std::vector<uint8_t> buf;
+    buf.insert(buf.end(), OVERLAY_MAGIC, OVERLAY_MAGIC + 8);
+    wr32(buf, 1); // version
+    wr32(buf, dirty ? 1 : 0); // flags
+    wr32(buf, totalSectors);
+    wr32(buf, fatSz);
+    wr32(buf, firstDataSector);
+    wr32(buf, nextFreeCluster);
+    wr64(buf, manifestSignature);
+    serializeNode(root, buf);
+    wr32(buf, uint32_t(overlay.size()));
+    for (const auto &pair : overlay) {
+        wr32(buf, pair.first);
+        buf.insert(buf.end(), pair.second.begin(), pair.second.end());
+    }
+
+    // Write to a temp file and rename so a crash mid-write can't corrupt a good
+    // overlay (the rename is atomic on the same filesystem)
+    std::string tmp = overlayPath + ".tmp";
+    FILE *f = fopen(tmp.c_str(), "wb");
+    if (!f) { LOG_CRIT("Failed to write virtual SD overlay: %s\n", tmp.c_str()); return; }
+    fwrite(buf.data(), 1, buf.size(), f);
+    fclose(f);
+    if (rename(tmp.c_str(), overlayPath.c_str()) != 0)
+        LOG_CRIT("Failed to commit virtual SD overlay: %s\n", overlayPath.c_str());
+}
+
+void VirtualFatBlock::flush() {
+    if (opened && dirty) saveOverlay();
+}
+
+void VirtualFatBlock::discardOverlay() {
+    overlay.clear();
+    dirty = false;
+    remove(overlayPath.c_str());
 }

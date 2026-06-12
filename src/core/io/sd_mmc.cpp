@@ -26,6 +26,7 @@ SdMmc::~SdMmc() {
     // Close the NAND file and SD device (only the owning port 0 holds them)
     if (id == 1) return;
     if (nand) fclose(nand);
+    if (sd) sd->flush(); // persist a virtual SD overlay before teardown
     delete sd;
 }
 

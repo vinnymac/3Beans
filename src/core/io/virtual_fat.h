@@ -43,6 +43,15 @@ public:
     bool write(uint64_t offset, size_t size, const void *buffer) override;
     uint64_t capacity() override { return uint64_t(totalSectors) << 9; }
     bool isOpen() override { return opened; }
+    void flush() override; // persist the overlay sidecar if there are writes
+
+    // Whether the guest has written to the card this session, and whether the
+    // host folder changed since a persisted overlay was pinned to it.
+    bool isDirty() const { return dirty; }
+    bool hasDrift() const { return drifted; }
+
+    // Drop the overlay and its sidecar (e.g. after committing, or on a reset)
+    void discardOverlay();
 
 private:
     // A scanned host file or directory and its assigned FAT32 cluster range
@@ -68,6 +77,9 @@ private:
     std::string rootPath;
     std::string overlayPath;
     bool opened = false;
+    bool dirty = false; // the guest has written to the overlay this session
+    bool drifted = false; // the folder changed since the overlay was pinned
+    uint64_t manifestSignature = 0; // hash of the pinned folder layout
 
     // FAT32 geometry, matching the desktop/Android "create empty sd.img" helper
     static const uint32_t bytesPerSec = 512;
@@ -91,6 +103,12 @@ private:
 
     void scan(const std::string &path, Node &node);
     void allocate(Node &node, bool isRoot);
+    void rebuildExtents(Node &node);
+    uint64_t computeSignature(const Node &node) const;
+    bool loadOverlay();
+    void saveOverlay();
+    void serializeNode(const Node &node, std::vector<uint8_t> &out) const;
+    void deserializeNode(Node &node, const uint8_t *&p, const uint8_t *end);
     const Extent *findExtent(uint32_t cluster) const;
     uint32_t fatEntry(uint32_t cluster) const;
     const std::vector<uint8_t> &dirBytes(const Node *node);

@@ -42,4 +42,7 @@ public:
 
     // Whether the backing store is present and usable.
     virtual bool isOpen() = 0;
+
+    // Persist any pending state (e.g. an in-memory overlay) before teardown.
+    virtual void flush() {}
 };
