@@ -50,6 +50,13 @@ object NativeLibrary {
     external fun getSettingString(name: String): String
     external fun setSettingString(name: String, value: String)
 
+    // Virtual SD (folder-backed FAT32) overlay management. prepare/commit return
+    // 0 = nothing to commit, 1 = committed, 2 = folder drifted, 3 = error.
+    external fun prepareVirtualSd(rootPath: String, overlayPath: String): Int
+    external fun commitVirtualSd(rootPath: String, overlayPath: String, allowDrift: Boolean): Int
+    external fun resetVirtualSdOverlay(overlayPath: String)
+    external fun exportSdImage(rootPath: String, overlayPath: String, destPath: String): Boolean
+
     external fun startCore(cartPath: String): Int
     external fun resumeCore()
     external fun pauseCore()

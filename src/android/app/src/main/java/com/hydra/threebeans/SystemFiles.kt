@@ -52,12 +52,45 @@ object SystemFiles {
     )
 
     private const val PREFS = "system_files"
+    private const val KEY_SD_MODE = "sdMode"
+    const val MODE_IMAGE = "image"
+    const val MODE_FOLDER = "folder"
     private val descriptors = HashMap<String, ParcelFileDescriptor>()
     private var cartDescriptor: ParcelFileDescriptor? = null
 
     fun basePath(context: Context): File = context.getExternalFilesDir(null) ?: context.filesDir
 
     fun localFile(context: Context, entry: Entry): File = File(basePath(context), entry.fileName)
+
+    // Virtual SD (folder-backed) state. The folder is a real directory the core
+    // scans directly; the overlay sidecar captures the emulator's writes.
+    fun sdMode(context: Context): String =
+        context.getSharedPreferences(PREFS, Context.MODE_PRIVATE).getString(KEY_SD_MODE, MODE_IMAGE) ?: MODE_IMAGE
+
+    fun setSdMode(context: Context, mode: String) {
+        context.getSharedPreferences(PREFS, Context.MODE_PRIVATE).edit().putString(KEY_SD_MODE, mode).apply()
+    }
+
+    fun sdFolder(context: Context): File = File(basePath(context), "sdcard")
+    fun sdOverlayFile(context: Context): File = File(basePath(context), "sd.overlay")
+
+    // Whether the emulator has writes not yet propagated back into the folder
+    fun hasPendingSdWrites(context: Context): Boolean = sdOverlayFile(context).isFile
+
+    // Commit a pending overlay before a run (crash recovery / drift detection).
+    // Returns 0 = nothing pending, 1 = committed, 2 = folder drifted, 3 = error.
+    fun prepareVirtualSd(context: Context): Int =
+        NativeLibrary.prepareVirtualSd(sdFolder(context).path, sdOverlayFile(context).path)
+
+    // Reconcile the overlay back into the folder (after a run or on demand)
+    fun commitVirtualSd(context: Context, allowDrift: Boolean = false): Int =
+        NativeLibrary.commitVirtualSd(sdFolder(context).path, sdOverlayFile(context).path, allowDrift)
+
+    fun resetVirtualSd(context: Context) =
+        NativeLibrary.resetVirtualSdOverlay(sdOverlayFile(context).path)
+
+    fun exportSdImage(context: Context, destPath: String): Boolean =
+        NativeLibrary.exportSdImage(sdFolder(context).path, sdOverlayFile(context).path, destPath)
 
     fun pickedUri(context: Context, entry: Entry): Uri? {
         val value = context.getSharedPreferences(PREFS, Context.MODE_PRIVATE)
@@ -81,7 +114,17 @@ object SystemFiles {
     // picked documents over files placed manually in the app directory
     fun prepare(context: Context): List<Entry> {
         val missing = ArrayList<Entry>()
+        val folderMode = sdMode(context) == MODE_FOLDER
+        NativeLibrary.setSettingInt("sdVirtual", if (folderMode) 1 else 0)
         for (entry in entries) {
+            // In folder mode the SD is a real directory the core synthesizes a
+            // FAT32 card from, with a copy-on-write overlay beside it
+            if (entry.fileName == "sd.img" && folderMode) {
+                val folder = sdFolder(context).apply { mkdirs() }
+                NativeLibrary.setSettingString("sdRootPath", folder.path)
+                NativeLibrary.setSettingString("sdOverlayPath", sdOverlayFile(context).path)
+                continue
+            }
             val uri = pickedUri(context, entry)
             var path: String? = null
             if (uri != null)

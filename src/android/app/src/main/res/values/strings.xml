@@ -39,6 +39,31 @@
     <string name="choose_file">Choose</string>
     <string name="clear_file">Clear</string>
 
+    <!-- SD card (folder vs image) -->
+    <string name="sd_card_title">SD card</string>
+    <string name="sd_card_desc">Optional. Holds titles and saves. Use a browsable folder, or a single FAT-formatted image file.</string>
+    <string name="sd_mode_folder">Folder</string>
+    <string name="sd_mode_image">Image</string>
+    <string name="sd_status_folder">Folder: %1$s\nBrowse and drop files in via the Files app. Emulator writes sync back when you quit.</string>
+    <string name="sd_status_folder_pending">Folder: %1$s\nUnsynced emulator writes are waiting — they sync back when you quit a game, or tap Sync now.</string>
+    <string name="sd_import">Import files</string>
+    <string name="sd_export">Export image</string>
+    <string name="sd_sync_now">Sync now</string>
+    <string name="sd_reset_writes">Reset writes</string>
+    <string name="sd_reset_confirm_title">Reset SD writes?</string>
+    <string name="sd_reset_confirm_message">This discards emulator writes that have not yet synced back into the folder. Files in the folder are not affected.</string>
+    <string name="sd_import_done">Imported %1$d file(s) into the SD folder</string>
+    <string name="sd_export_done">Exported to %1$s</string>
+    <string name="sd_export_failed">Failed to export the SD image</string>
+    <string name="sd_sync_done">SD folder is up to date</string>
+    <string name="sd_sync_failed">Could not sync the SD folder</string>
+
+    <!-- SD folder/overlay conflict on boot -->
+    <string name="sd_conflict_title">SD folder changed</string>
+    <string name="sd_conflict_message">The SD folder changed while there were unsynced emulator writes from a previous session. Keep the emulator\'s writes (overwriting folder changes), or use the folder as it is now (discarding those writes)?</string>
+    <string name="sd_conflict_keep">Keep emulator writes</string>
+    <string name="sd_conflict_folder">Use folder</string>
+
     <!-- Emulation -->
     <string name="fps_format">%d FPS</string>
     <string name="emulation_menu">Emulation menu</string>

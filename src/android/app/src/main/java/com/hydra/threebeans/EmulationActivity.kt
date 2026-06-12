@@ -120,6 +120,30 @@ class EmulationActivity : AppCompatActivity() {
             return
         }
 
+        // In folder mode, commit any overlay left by a previously crashed run
+        // before booting. A drift result means the folder changed under unsynced
+        // writes, so let the user resolve the conflict before continuing.
+        if (SystemFiles.sdMode(this) == SystemFiles.MODE_FOLDER &&
+            SystemFiles.prepareVirtualSd(this) == 2) {
+            MaterialAlertDialogBuilder(this)
+                .setTitle(R.string.sd_conflict_title)
+                .setMessage(R.string.sd_conflict_message)
+                .setPositiveButton(R.string.sd_conflict_keep) { _, _ ->
+                    SystemFiles.commitVirtualSd(this, allowDrift = true)
+                    continueStart()
+                }
+                .setNegativeButton(R.string.sd_conflict_folder) { _, _ ->
+                    SystemFiles.resetVirtualSd(this)
+                    continueStart()
+                }
+                .setCancelable(false)
+                .show()
+            return
+        }
+        continueStart()
+    }
+
+    private fun continueStart() {
         // Resolve the cart ROM when one was selected
         cartPath = ""
         val cartUri = intent.getStringExtra(EXTRA_CART_URI)
@@ -186,6 +210,11 @@ class EmulationActivity : AppCompatActivity() {
         super.onDestroy()
         secondaryDisplay.release()
         if (coreStarted) NativeLibrary.stopCore()
+        // Propagate this session's SD writes back into the browsable folder.
+        // The core flushed the overlay on stop; if this is interrupted the writes
+        // are still safe and get committed on the next launch.
+        if (coreStarted && SystemFiles.sdMode(this) == SystemFiles.MODE_FOLDER)
+            SystemFiles.commitVirtualSd(this)
         SystemFiles.closeCart()
         // Drop any per-game overrides from the core's live settings
         NativeLibrary.loadSettings(SystemFiles.basePath(this).absolutePath)

@@ -25,6 +25,7 @@
 #include <vector>
 
 #include "../../../../../core/core.h"
+#include "../../../../../core/io/virtual_fat.h"
 
 // The Android frontend mirrors the desktop one: it owns the core object, a
 // run thread, and a mutex guarding the core pointer across the UI, GL, and
@@ -244,6 +245,48 @@ JNIEXPORT void JNICALL Java_com_hydra_threebeans_NativeLibrary_pressScreen(JNIEn
 JNIEXPORT void JNICALL Java_com_hydra_threebeans_NativeLibrary_releaseScreen(JNIEnv*, jobject) {
     std::lock_guard<std::mutex> guard(coreMutex);
     if (core) core->input.releaseScreen();
+}
+
+// Commit a pending virtual-SD overlay before starting (crash recovery / drift
+// check). Returns 0 = nothing to commit, 1 = committed, 2 = folder drifted, 3 = error.
+JNIEXPORT jint JNICALL Java_com_hydra_threebeans_NativeLibrary_prepareVirtualSd(JNIEnv *env, jobject, jstring root, jstring overlay) {
+    const char *r = env->GetStringUTFChars(root, nullptr);
+    const char *o = env->GetStringUTFChars(overlay, nullptr);
+    int res = VirtualFatBlock::commitOverlay(r, o, false);
+    env->ReleaseStringUTFChars(root, r);
+    env->ReleaseStringUTFChars(overlay, o);
+    return res;
+}
+
+// Reconcile the overlay into the folder (after a stop or a manual sync). Same
+// return codes as above; allowDrift forces a commit despite folder changes.
+JNIEXPORT jint JNICALL Java_com_hydra_threebeans_NativeLibrary_commitVirtualSd(JNIEnv *env, jobject, jstring root, jstring overlay, jboolean allowDrift) {
+    const char *r = env->GetStringUTFChars(root, nullptr);
+    const char *o = env->GetStringUTFChars(overlay, nullptr);
+    int res = VirtualFatBlock::commitOverlay(r, o, allowDrift);
+    env->ReleaseStringUTFChars(root, r);
+    env->ReleaseStringUTFChars(overlay, o);
+    return res;
+}
+
+// Discard a pending overlay (drop the emulator's unsynced writes)
+JNIEXPORT void JNICALL Java_com_hydra_threebeans_NativeLibrary_resetVirtualSdOverlay(JNIEnv *env, jobject, jstring overlay) {
+    const char *o = env->GetStringUTFChars(overlay, nullptr);
+    VirtualFatBlock::resetOverlay(o);
+    env->ReleaseStringUTFChars(overlay, o);
+}
+
+// Materialize the folder (plus any overlay) as a standalone sparse sd.img
+JNIEXPORT jboolean JNICALL Java_com_hydra_threebeans_NativeLibrary_exportSdImage(JNIEnv *env, jobject, jstring root, jstring overlay, jstring dest) {
+    const char *r = env->GetStringUTFChars(root, nullptr);
+    const char *o = env->GetStringUTFChars(overlay, nullptr);
+    const char *d = env->GetStringUTFChars(dest, nullptr);
+    VirtualFatBlock dev(r, o);
+    bool ok = dev.exportImage(d);
+    env->ReleaseStringUTFChars(root, r);
+    env->ReleaseStringUTFChars(overlay, o);
+    env->ReleaseStringUTFChars(dest, d);
+    return ok;
 }
 
 } // extern "C"
