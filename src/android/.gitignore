@@ -2,5 +2,6 @@
 .gradle/
 .idea/
 .kotlin/
+.cxx/
 build/
 local.properties
