@@ -19,6 +19,30 @@
 
 #include "../core.h"
 
+I2c::I2c(Core &core): core(core) {
+    // Try to load MCU RAM data from a file
+    if (FILE *file = fopen((Settings::basePath + "/mcu_ram.bin").c_str(), "rb")) {
+        fread(mcuRamData, sizeof(uint8_t), sizeof(mcuRamData), file);
+        fclose(file);
+    }
+}
+
+I2c::~I2c() {
+    // Ensure MCU RAM is written
+    updateMcuRam();
+}
+
+void I2c::updateMcuRam() {
+    // Update the MCU RAM file if its data changed
+    if (!ramDirty) return;
+    if (FILE *file = fopen((Settings::basePath + "/mcu_ram.bin").c_str(), "wb")) {
+        LOG_INFO("Writing updated MCU RAM file to disk\n");
+        fwrite(mcuRamData, sizeof(uint8_t), sizeof(mcuRamData), file);
+        fclose(file);
+        ramDirty = false;
+    }
+}
+
 void I2c::mcuInterrupt(uint32_t mask) {
     // Set MCU interrupt flags and trigger if a set flag is enabled
     if ((mcuIrqFlags |= mask) & ~mcuIrqMask)
@@ -44,13 +68,15 @@ uint8_t I2c::readMcu() {
         case 0x19: return readMcuIrqMask(1);
         case 0x1A: return readMcuIrqMask(2);
         case 0x1B: return readMcuIrqMask(3);
-        case 0x30: return readRtcValue(0);
-        case 0x31: return readRtcValue(1);
-        case 0x32: return readRtcValue(2);
-        case 0x33: return readRtcValue(3);
-        case 0x34: return readRtcValue(4);
-        case 0x35: return readRtcValue(5);
-        case 0x36: return readRtcValue(6);
+        case 0x30: return readMcuRtcVal(0);
+        case 0x31: return readMcuRtcVal(1);
+        case 0x32: return readMcuRtcVal(2);
+        case 0x33: return readMcuRtcVal(3);
+        case 0x34: return readMcuRtcVal(4);
+        case 0x35: return readMcuRtcVal(5);
+        case 0x36: return readMcuRtcVal(6);
+        case 0x60: return mcuRamIdx;
+        case 0x61: return readMcuRamData();
 
     default:
         // Catch reads from unknown MCU registers
@@ -78,6 +104,8 @@ void I2c::writeMcu(uint8_t value) {
         case 0x1A: return writeMcuIrqMask(2, value);
         case 0x1B: return writeMcuIrqMask(3, value);
         case 0x22: return writeMcuLcdPower(value);
+        case 0x60: return writeMcuRamIdx(value);
+        case 0x61: return writeMcuRamData(value);
 
     default:
         // Catch writes to unknown MCU registers
@@ -98,7 +126,7 @@ uint8_t I2c::readMcuIrqMask(int i) {
     return mcuIrqMask >> (i << 3);
 }
 
-uint8_t I2c::readRtcValue(int i) {
+uint8_t I2c::readMcuRtcVal(int i) {
     // Get the local time and adjust values for the DS
     std::time_t t = std::time(nullptr);
     std::tm *time = std::localtime(&t);
@@ -117,6 +145,13 @@ uint8_t I2c::readRtcValue(int i) {
     }
 }
 
+uint8_t I2c::readMcuRamData() {
+    // Read from indexed MCU RAM data and increment always
+    if (mcuRamIdx++ < 0xC8)
+        return mcuRamData[mcuRamIdx - 1];
+    return 0;
+}
+
 void I2c::writeMcuIrqMask(int i, uint8_t value) {
     // Write part of the MCU interrupt mask
     mcuIrqMask = (mcuIrqMask & ~(0xFF << (i << 3))) | (value << (i << 3));
@@ -131,6 +166,18 @@ void I2c::writeMcuLcdPower(uint8_t value) {
     if (value & BIT(3)) mcuInterrupt(BIT(27)); // Bottom backlight on
     if (value & BIT(4)) mcuInterrupt(BIT(28)); // Top backlight off
     if (value & BIT(5)) mcuInterrupt(BIT(29)); // Top backlight on
+}
+
+void I2c::writeMcuRamIdx(uint8_t value) {
+    // Write to the MCU RAM index register
+    mcuRamIdx = value;
+}
+
+void I2c::writeMcuRamData(uint8_t value) {
+    // Write to indexed MCU RAM data and increment if within bounds
+    if (mcuRamIdx >= 0xC8) return;
+    mcuRamData[mcuRamIdx++] = value;
+    ramDirty = true;
 }
 
 uint8_t I2c::readCam(int i) {
