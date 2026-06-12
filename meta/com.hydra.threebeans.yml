@@ -10,6 +10,7 @@ finish-args:
   - --socket=x11
   - --socket=pulseaudio
   - --filesystem=host
+  - --env=LD_LIBRARY_PATH=/app/lib64:/app/lib
 
 modules:
   - name: wxwidgets
