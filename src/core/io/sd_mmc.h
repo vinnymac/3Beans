@@ -20,7 +20,10 @@
 #pragma once
 
 #include <cstdint>
+#include <cstdio>
 #include <queue>
+
+#include "block_device.h"
 
 class Core;
 
@@ -66,7 +69,7 @@ private:
     int id = 0;
 
     FILE *nand = nullptr;
-    FILE *sd = nullptr;
+    BlockDevice *sd = nullptr;
     bool sdhc = false;
 
     uint32_t cardStatus = 0;

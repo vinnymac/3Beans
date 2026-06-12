@@ -19,23 +19,23 @@
 
 #include <cstring>
 #include "../core.h"
+#include "file_block.h"
 
 SdMmc::~SdMmc() {
-    // Close the NAND and SD files
+    // Close the NAND file and SD device (only the owning port 0 holds them)
     if (id == 1) return;
     if (nand) fclose(nand);
-    if (sd) fclose(sd);
+    delete sd;
 }
 
 bool SdMmc::init(SdMmc &other) {
-    // Try to open an SD image to share between ports
-    other.sd = sd = fopen(Settings::sdPath.c_str(), "rb+");
+    // Open an SD card backing store to share between ports
+    other.sd = sd = new FileBlock(Settings::sdPath);
     other.id = 1;
 
     // Check the SD's capacity so cards over 2GB can be handled differently
-    if (sd) {
-        fseek(sd, 0, SEEK_END);
-        other.sdhc = sdhc = (ftell(sd) > 0x40000000);
+    if (sd->isOpen()) {
+        other.sdhc = sdhc = (sd->capacity() > 0x40000000);
         LOG_INFO("SD card is being treated as %s-capacity\n", sdhc ? "high" : "standard");
     }
 
@@ -161,16 +161,21 @@ void SdMmc::readBlock() {
     // Check for high capacity and hardcode the block length if so
     bool hc = (~sdPortSelect & sdhc);
     uint32_t len = (hc ? 0x80 : blockLen);
+    uint64_t addr = hc ? (uint64_t(curAddress) << 9) : curAddress;
 
-    // Read a block of data from the SD or MMC if present, in 512- or 1-byte units
+    // Read a block of data from the MMC (NAND file) or SD (block device) if present
     uint32_t data[0x80];
-    if (FILE *src = (sdPortSelect & BIT(0)) ? nand : sd) {
-        fseek(src, hc ? (int64_t(curAddress) << 9) : curAddress, SEEK_SET);
-        fread(data, sizeof(uint32_t), len, src);
+    bool present;
+    if (sdPortSelect & BIT(0)) { // MMC
+        if ((present = nand)) {
+            fseek(nand, addr, SEEK_SET);
+            fread(data, sizeof(uint32_t), len, nand);
+        }
     }
-    else {
-        memset(data, 0, sizeof(data));
+    else { // SD
+        present = sd && sd->read(addr, len << 2, data);
     }
+    if (!present) memset(data, 0, sizeof(data));
 
     // Push the data to a FIFO
     LOG_INFO("Reading %s block from 0x%X with size 0x%X\n",
@@ -187,6 +192,7 @@ void SdMmc::writeBlock() {
     // Check for high capacity and hardcode the block length if so
     bool hc = (~sdPortSelect & sdhc);
     uint32_t len = (hc ? 0x80 : blockLen);
+    uint64_t addr = hc ? (uint64_t(curAddress) << 9) : curAddress;
 
     // Pop a block of data from a FIFO
     uint32_t data[0x80];
@@ -194,10 +200,15 @@ void SdMmc::writeBlock() {
         (sdPortSelect & BIT(0)) ? "MMC" : "SD", curAddress, len << 2);
     for (int i = 0; i < len; i++) data[i] = popFifo();
 
-    // Write the data to the SD or MMC if present, in 512- or 1-byte units
-    if (FILE *dst = (sdPortSelect & BIT(0)) ? nand : sd) {
-        fseek(dst, hc ? (int64_t(curAddress) << 9) : curAddress, SEEK_SET);
-        fwrite(data, sizeof(uint32_t), len, dst);
+    // Write the data to the MMC (NAND file) or SD (block device) if present
+    if (sdPortSelect & BIT(0)) { // MMC
+        if (nand) {
+            fseek(nand, addr, SEEK_SET);
+            fwrite(data, sizeof(uint32_t), len, nand);
+        }
+    }
+    else if (sd) { // SD
+        sd->write(addr, len << 2, data);
     }
 
     // Change state and trigger a DRQ or end interrupt based on blocks left
