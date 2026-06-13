@@ -20,6 +20,7 @@
 #pragma once
 
 #include <cstdint>
+#include <cstring>
 
 #define DEF_IO08(addr, func) \
     case addr + 0: \
@@ -126,10 +127,9 @@ private:
 template <typename T> FORCE_INLINE T Memory::read(CpuId id, uint32_t address) {
     // Look up a readable memory pointer and load an LSB-first value if it exists
     if (uint8_t *data = (id == ARM9 ? memMap9 : memMap11)[address >> 12].read) {
-        T value = 0;
-        data += (address & 0xFFF);
-        for (uint32_t i = 0; i < sizeof(T); i++)
-            value |= data[i] << (i << 3);
+        // Hosts are little-endian, so a single unaligned load matches a byte-wise LSB-first read
+        T value;
+        memcpy(&value, data + (address & 0xFFF), sizeof(T));
         return value;
     }
     return readFallback<T>(id, address);
@@ -142,9 +142,8 @@ template <typename T> FORCE_INLINE void Memory::write(CpuId id, uint32_t address
 
     // Store an LSB-first value if the pointer exists, or fall back
     if (uint8_t *data = map.write) {
-        data += (address & 0xFFF);
-        for (uint32_t i = 0; i < sizeof(T); i++)
-            data[i] = value >> (i << 3);
+        // Hosts are little-endian, so a single unaligned store matches a byte-wise LSB-first write
+        memcpy(data + (address & 0xFFF), &value, sizeof(T));
         return;
     }
     return writeFallback<T>(id, address, value);

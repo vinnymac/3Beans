@@ -25,6 +25,7 @@
 #include <vector>
 
 #include "../../../../../core/core.h"
+#include "egl_context.h"
 
 // The Android frontend mirrors the desktop one: it owns the core object, a
 // run thread, and a mutex guarding the core pointer across the UI, GL, and
@@ -35,6 +36,7 @@ namespace {
     std::thread *coreThread = nullptr;
     std::mutex coreMutex;
     std::string cartPath;
+    EglContext eglContext;
 
     void runCore() {
         while (running.load())
@@ -77,8 +79,9 @@ namespace {
         return nullptr;
     }
 
-    // The desktop OpenGL renderer isn't usable on Android, so force the
-    // software renderer and its shader backends before a core is created
+    // Fall back to the software renderer and software shaders. Used when the
+    // user hasn't enabled the hardware renderer, or when bringing up the GLES
+    // context fails, so the core is never given a renderer it can't drive.
     void forceSoftRenderer() {
         Settings::gpuRenderer = 0;
         Settings::gpuVtxShader = 0;
@@ -92,7 +95,6 @@ JNIEXPORT jboolean JNICALL Java_com_hydra_threebeans_NativeLibrary_loadSettings(
     const char *path = env->GetStringUTFChars(basePath, nullptr);
     bool loaded = Settings::load(path);
     env->ReleaseStringUTFChars(basePath, path);
-    forceSoftRenderer();
     return loaded;
 }
 
@@ -112,7 +114,6 @@ JNIEXPORT void JNICALL Java_com_hydra_threebeans_NativeLibrary_setSettingInt(JNI
     if (int *setting = intSetting(str))
         *setting = value;
     env->ReleaseStringUTFChars(name, str);
-    forceSoftRenderer();
 }
 
 JNIEXPORT jstring JNICALL Java_com_hydra_threebeans_NativeLibrary_getSettingString(JNIEnv *env, jobject, jstring name) {
@@ -138,16 +139,27 @@ JNIEXPORT jint JNICALL Java_com_hydra_threebeans_NativeLibrary_startCore(JNIEnv 
     std::lock_guard<std::mutex> guard(coreMutex);
     delete core;
     core = nullptr;
+    eglContext.destroy();
 
     // Create a new core, reporting boot ROM errors
     const char *str = env->GetStringUTFChars(path, nullptr);
     cartPath = str;
     env->ReleaseStringUTFChars(path, str);
-    forceSoftRenderer();
+
+    // Honor the chosen GPU renderer, but only commit to the hardware path if an
+    // offscreen GLES context actually comes up; otherwise fall back to software
+    // so the core is never handed a context function it can't call.
+    std::function<void()> *contextFunc = nullptr;
+    if (Settings::gpuRenderer == 1 && eglContext.init())
+        contextFunc = &eglContext.func;
+    else
+        forceSoftRenderer();
+
     try {
-        core = new Core(cartPath);
+        core = new Core(cartPath, contextFunc);
     }
     catch (CoreError e) {
+        eglContext.destroy();
         return 1 + e;
     }
     return 0;
@@ -166,6 +178,7 @@ JNIEXPORT void JNICALL Java_com_hydra_threebeans_NativeLibrary_stopCore(JNIEnv*,
     std::lock_guard<std::mutex> guard(coreMutex);
     delete core;
     core = nullptr;
+    eglContext.destroy();
 }
 
 JNIEXPORT jboolean JNICALL Java_com_hydra_threebeans_NativeLibrary_isRunning(JNIEnv*, jobject) {

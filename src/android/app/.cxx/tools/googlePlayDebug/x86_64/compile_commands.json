@@ -1,0 +1,242 @@
+[
+{
+  "directory": "/home/vinnymac/Sites/vinnymac/3Beans/src/android/app/.cxx/Debug/2n1l371q/x86_64",
+  "command": "/opt/android-sdk/ndk/27.3.13750724/toolchains/llvm/prebuilt/linux-x86_64/bin/clang++ --target=x86_64-none-linux-android24 --sysroot=/opt/android-sdk/ndk/27.3.13750724/toolchains/llvm/prebuilt/linux-x86_64/sysroot -DLOG_LEVEL=0 -D_3beans_EXPORTS -I/home/vinnymac/Sites/vinnymac/3Beans/src/android/app/src/main/cpp/shim -g -DANDROID -fdata-sections -ffunction-sections -funwind-tables -fstack-protector-strong -no-canonical-prefixes -D__BIONIC_NO_PAGE_SIZE_MACRO -D_FORTIFY_SOURCE=2 -Wformat -Werror=format-security   -fno-limit-debug-info  -fPIC -O3 -std=gnu++11 -o CMakeFiles/3beans.dir/interface.cpp.o -c /home/vinnymac/Sites/vinnymac/3Beans/src/android/app/src/main/cpp/interface.cpp",
+  "file": "/home/vinnymac/Sites/vinnymac/3Beans/src/android/app/src/main/cpp/interface.cpp"
+},
+{
+  "directory": "/home/vinnymac/Sites/vinnymac/3Beans/src/android/app/.cxx/Debug/2n1l371q/x86_64",
+  "command": "/opt/android-sdk/ndk/27.3.13750724/toolchains/llvm/prebuilt/linux-x86_64/bin/clang++ --target=x86_64-none-linux-android24 --sysroot=/opt/android-sdk/ndk/27.3.13750724/toolchains/llvm/prebuilt/linux-x86_64/sysroot -DLOG_LEVEL=0 -D_3beans_EXPORTS -I/home/vinnymac/Sites/vinnymac/3Beans/src/android/app/src/main/cpp/shim -g -DANDROID -fdata-sections -ffunction-sections -funwind-tables -fstack-protector-strong -no-canonical-prefixes -D__BIONIC_NO_PAGE_SIZE_MACRO -D_FORTIFY_SOURCE=2 -Wformat -Werror=format-security   -fno-limit-debug-info  -fPIC -O3 -std=gnu++11 -o CMakeFiles/3beans.dir/home/vinnymac/Sites/vinnymac/3Beans/src/core/arm/arm_interp.cpp.o -c /home/vinnymac/Sites/vinnymac/3Beans/src/core/arm/arm_interp.cpp",
+  "file": "/home/vinnymac/Sites/vinnymac/3Beans/src/core/arm/arm_interp.cpp"
+},
+{
+  "directory": "/home/vinnymac/Sites/vinnymac/3Beans/src/android/app/.cxx/Debug/2n1l371q/x86_64",
+  "command": "/opt/android-sdk/ndk/27.3.13750724/toolchains/llvm/prebuilt/linux-x86_64/bin/clang++ --target=x86_64-none-linux-android24 --sysroot=/opt/android-sdk/ndk/27.3.13750724/toolchains/llvm/prebuilt/linux-x86_64/sysroot -DLOG_LEVEL=0 -D_3beans_EXPORTS -I/home/vinnymac/Sites/vinnymac/3Beans/src/android/app/src/main/cpp/shim -g -DANDROID -fdata-sections -ffunction-sections -funwind-tables -fstack-protector-strong -no-canonical-prefixes -D__BIONIC_NO_PAGE_SIZE_MACRO -D_FORTIFY_SOURCE=2 -Wformat -Werror=format-security   -fno-limit-debug-info  -fPIC -O3 -std=gnu++11 -o CMakeFiles/3beans.dir/home/vinnymac/Sites/vinnymac/3Beans/src/core/arm/arm_interp_alu.cpp.o -c /home/vinnymac/Sites/vinnymac/3Beans/src/core/arm/arm_interp_alu.cpp",
+  "file": "/home/vinnymac/Sites/vinnymac/3Beans/src/core/arm/arm_interp_alu.cpp"
+},
+{
+  "directory": "/home/vinnymac/Sites/vinnymac/3Beans/src/android/app/.cxx/Debug/2n1l371q/x86_64",
+  "command": "/opt/android-sdk/ndk/27.3.13750724/toolchains/llvm/prebuilt/linux-x86_64/bin/clang++ --target=x86_64-none-linux-android24 --sysroot=/opt/android-sdk/ndk/27.3.13750724/toolchains/llvm/prebuilt/linux-x86_64/sysroot -DLOG_LEVEL=0 -D_3beans_EXPORTS -I/home/vinnymac/Sites/vinnymac/3Beans/src/android/app/src/main/cpp/shim -g -DANDROID -fdata-sections -ffunction-sections -funwind-tables -fstack-protector-strong -no-canonical-prefixes -D__BIONIC_NO_PAGE_SIZE_MACRO -D_FORTIFY_SOURCE=2 -Wformat -Werror=format-security   -fno-limit-debug-info  -fPIC -O3 -std=gnu++11 -o CMakeFiles/3beans.dir/home/vinnymac/Sites/vinnymac/3Beans/src/core/arm/arm_interp_control.cpp.o -c /home/vinnymac/Sites/vinnymac/3Beans/src/core/arm/arm_interp_control.cpp",
+  "file": "/home/vinnymac/Sites/vinnymac/3Beans/src/core/arm/arm_interp_control.cpp"
+},
+{
+  "directory": "/home/vinnymac/Sites/vinnymac/3Beans/src/android/app/.cxx/Debug/2n1l371q/x86_64",
+  "command": "/opt/android-sdk/ndk/27.3.13750724/toolchains/llvm/prebuilt/linux-x86_64/bin/clang++ --target=x86_64-none-linux-android24 --sysroot=/opt/android-sdk/ndk/27.3.13750724/toolchains/llvm/prebuilt/linux-x86_64/sysroot -DLOG_LEVEL=0 -D_3beans_EXPORTS -I/home/vinnymac/Sites/vinnymac/3Beans/src/android/app/src/main/cpp/shim -g -DANDROID -fdata-sections -ffunction-sections -funwind-tables -fstack-protector-strong -no-canonical-prefixes -D__BIONIC_NO_PAGE_SIZE_MACRO -D_FORTIFY_SOURCE=2 -Wformat -Werror=format-security   -fno-limit-debug-info  -fPIC -O3 -std=gnu++11 -o CMakeFiles/3beans.dir/home/vinnymac/Sites/vinnymac/3Beans/src/core/arm/arm_interp_lookup.cpp.o -c /home/vinnymac/Sites/vinnymac/3Beans/src/core/arm/arm_interp_lookup.cpp",
+  "file": "/home/vinnymac/Sites/vinnymac/3Beans/src/core/arm/arm_interp_lookup.cpp"
+},
+{
+  "directory": "/home/vinnymac/Sites/vinnymac/3Beans/src/android/app/.cxx/Debug/2n1l371q/x86_64",
+  "command": "/opt/android-sdk/ndk/27.3.13750724/toolchains/llvm/prebuilt/linux-x86_64/bin/clang++ --target=x86_64-none-linux-android24 --sysroot=/opt/android-sdk/ndk/27.3.13750724/toolchains/llvm/prebuilt/linux-x86_64/sysroot -DLOG_LEVEL=0 -D_3beans_EXPORTS -I/home/vinnymac/Sites/vinnymac/3Beans/src/android/app/src/main/cpp/shim -g -DANDROID -fdata-sections -ffunction-sections -funwind-tables -fstack-protector-strong -no-canonical-prefixes -D__BIONIC_NO_PAGE_SIZE_MACRO -D_FORTIFY_SOURCE=2 -Wformat -Werror=format-security   -fno-limit-debug-info  -fPIC -O3 -std=gnu++11 -o CMakeFiles/3beans.dir/home/vinnymac/Sites/vinnymac/3Beans/src/core/arm/arm_interp_transfer.cpp.o -c /home/vinnymac/Sites/vinnymac/3Beans/src/core/arm/arm_interp_transfer.cpp",
+  "file": "/home/vinnymac/Sites/vinnymac/3Beans/src/core/arm/arm_interp_transfer.cpp"
+},
+{
+  "directory": "/home/vinnymac/Sites/vinnymac/3Beans/src/android/app/.cxx/Debug/2n1l371q/x86_64",
+  "command": "/opt/android-sdk/ndk/27.3.13750724/toolchains/llvm/prebuilt/linux-x86_64/bin/clang++ --target=x86_64-none-linux-android24 --sysroot=/opt/android-sdk/ndk/27.3.13750724/toolchains/llvm/prebuilt/linux-x86_64/sysroot -DLOG_LEVEL=0 -D_3beans_EXPORTS -I/home/vinnymac/Sites/vinnymac/3Beans/src/android/app/src/main/cpp/shim -g -DANDROID -fdata-sections -ffunction-sections -funwind-tables -fstack-protector-strong -no-canonical-prefixes -D__BIONIC_NO_PAGE_SIZE_MACRO -D_FORTIFY_SOURCE=2 -Wformat -Werror=format-security   -fno-limit-debug-info  -fPIC -O3 -std=gnu++11 -o CMakeFiles/3beans.dir/home/vinnymac/Sites/vinnymac/3Beans/src/core/arm/cp15.cpp.o -c /home/vinnymac/Sites/vinnymac/3Beans/src/core/arm/cp15.cpp",
+  "file": "/home/vinnymac/Sites/vinnymac/3Beans/src/core/arm/cp15.cpp"
+},
+{
+  "directory": "/home/vinnymac/Sites/vinnymac/3Beans/src/android/app/.cxx/Debug/2n1l371q/x86_64",
+  "command": "/opt/android-sdk/ndk/27.3.13750724/toolchains/llvm/prebuilt/linux-x86_64/bin/clang++ --target=x86_64-none-linux-android24 --sysroot=/opt/android-sdk/ndk/27.3.13750724/toolchains/llvm/prebuilt/linux-x86_64/sysroot -DLOG_LEVEL=0 -D_3beans_EXPORTS -I/home/vinnymac/Sites/vinnymac/3Beans/src/android/app/src/main/cpp/shim -g -DANDROID -fdata-sections -ffunction-sections -funwind-tables -fstack-protector-strong -no-canonical-prefixes -D__BIONIC_NO_PAGE_SIZE_MACRO -D_FORTIFY_SOURCE=2 -Wformat -Werror=format-security   -fno-limit-debug-info  -fPIC -O3 -std=gnu++11 -o CMakeFiles/3beans.dir/home/vinnymac/Sites/vinnymac/3Beans/src/core/arm/interrupts.cpp.o -c /home/vinnymac/Sites/vinnymac/3Beans/src/core/arm/interrupts.cpp",
+  "file": "/home/vinnymac/Sites/vinnymac/3Beans/src/core/arm/interrupts.cpp"
+},
+{
+  "directory": "/home/vinnymac/Sites/vinnymac/3Beans/src/android/app/.cxx/Debug/2n1l371q/x86_64",
+  "command": "/opt/android-sdk/ndk/27.3.13750724/toolchains/llvm/prebuilt/linux-x86_64/bin/clang++ --target=x86_64-none-linux-android24 --sysroot=/opt/android-sdk/ndk/27.3.13750724/toolchains/llvm/prebuilt/linux-x86_64/sysroot -DLOG_LEVEL=0 -D_3beans_EXPORTS -I/home/vinnymac/Sites/vinnymac/3Beans/src/android/app/src/main/cpp/shim -g -DANDROID -fdata-sections -ffunction-sections -funwind-tables -fstack-protector-strong -no-canonical-prefixes -D__BIONIC_NO_PAGE_SIZE_MACRO -D_FORTIFY_SOURCE=2 -Wformat -Werror=format-security   -fno-limit-debug-info  -fPIC -O3 -std=gnu++11 -o CMakeFiles/3beans.dir/home/vinnymac/Sites/vinnymac/3Beans/src/core/arm/timers.cpp.o -c /home/vinnymac/Sites/vinnymac/3Beans/src/core/arm/timers.cpp",
+  "file": "/home/vinnymac/Sites/vinnymac/3Beans/src/core/arm/timers.cpp"
+},
+{
+  "directory": "/home/vinnymac/Sites/vinnymac/3Beans/src/android/app/.cxx/Debug/2n1l371q/x86_64",
+  "command": "/opt/android-sdk/ndk/27.3.13750724/toolchains/llvm/prebuilt/linux-x86_64/bin/clang++ --target=x86_64-none-linux-android24 --sysroot=/opt/android-sdk/ndk/27.3.13750724/toolchains/llvm/prebuilt/linux-x86_64/sysroot -DLOG_LEVEL=0 -D_3beans_EXPORTS -I/home/vinnymac/Sites/vinnymac/3Beans/src/android/app/src/main/cpp/shim -g -DANDROID -fdata-sections -ffunction-sections -funwind-tables -fstack-protector-strong -no-canonical-prefixes -D__BIONIC_NO_PAGE_SIZE_MACRO -D_FORTIFY_SOURCE=2 -Wformat -Werror=format-security   -fno-limit-debug-info  -fPIC -O3 -std=gnu++11 -o CMakeFiles/3beans.dir/home/vinnymac/Sites/vinnymac/3Beans/src/core/arm/vfp11_interp.cpp.o -c /home/vinnymac/Sites/vinnymac/3Beans/src/core/arm/vfp11_interp.cpp",
+  "file": "/home/vinnymac/Sites/vinnymac/3Beans/src/core/arm/vfp11_interp.cpp"
+},
+{
+  "directory": "/home/vinnymac/Sites/vinnymac/3Beans/src/android/app/.cxx/Debug/2n1l371q/x86_64",
+  "command": "/opt/android-sdk/ndk/27.3.13750724/toolchains/llvm/prebuilt/linux-x86_64/bin/clang++ --target=x86_64-none-linux-android24 --sysroot=/opt/android-sdk/ndk/27.3.13750724/toolchains/llvm/prebuilt/linux-x86_64/sysroot -DLOG_LEVEL=0 -D_3beans_EXPORTS -I/home/vinnymac/Sites/vinnymac/3Beans/src/android/app/src/main/cpp/shim -g -DANDROID -fdata-sections -ffunction-sections -funwind-tables -fstack-protector-strong -no-canonical-prefixes -D__BIONIC_NO_PAGE_SIZE_MACRO -D_FORTIFY_SOURCE=2 -Wformat -Werror=format-security   -fno-limit-debug-info  -fPIC -O3 -std=gnu++11 -o CMakeFiles/3beans.dir/home/vinnymac/Sites/vinnymac/3Beans/src/core/convert/aes.cpp.o -c /home/vinnymac/Sites/vinnymac/3Beans/src/core/convert/aes.cpp",
+  "file": "/home/vinnymac/Sites/vinnymac/3Beans/src/core/convert/aes.cpp"
+},
+{
+  "directory": "/home/vinnymac/Sites/vinnymac/3Beans/src/android/app/.cxx/Debug/2n1l371q/x86_64",
+  "command": "/opt/android-sdk/ndk/27.3.13750724/toolchains/llvm/prebuilt/linux-x86_64/bin/clang++ --target=x86_64-none-linux-android24 --sysroot=/opt/android-sdk/ndk/27.3.13750724/toolchains/llvm/prebuilt/linux-x86_64/sysroot -DLOG_LEVEL=0 -D_3beans_EXPORTS -I/home/vinnymac/Sites/vinnymac/3Beans/src/android/app/src/main/cpp/shim -g -DANDROID -fdata-sections -ffunction-sections -funwind-tables -fstack-protector-strong -no-canonical-prefixes -D__BIONIC_NO_PAGE_SIZE_MACRO -D_FORTIFY_SOURCE=2 -Wformat -Werror=format-security   -fno-limit-debug-info  -fPIC -O3 -std=gnu++11 -o CMakeFiles/3beans.dir/home/vinnymac/Sites/vinnymac/3Beans/src/core/convert/rsa.cpp.o -c /home/vinnymac/Sites/vinnymac/3Beans/src/core/convert/rsa.cpp",
+  "file": "/home/vinnymac/Sites/vinnymac/3Beans/src/core/convert/rsa.cpp"
+},
+{
+  "directory": "/home/vinnymac/Sites/vinnymac/3Beans/src/android/app/.cxx/Debug/2n1l371q/x86_64",
+  "command": "/opt/android-sdk/ndk/27.3.13750724/toolchains/llvm/prebuilt/linux-x86_64/bin/clang++ --target=x86_64-none-linux-android24 --sysroot=/opt/android-sdk/ndk/27.3.13750724/toolchains/llvm/prebuilt/linux-x86_64/sysroot -DLOG_LEVEL=0 -D_3beans_EXPORTS -I/home/vinnymac/Sites/vinnymac/3Beans/src/android/app/src/main/cpp/shim -g -DANDROID -fdata-sections -ffunction-sections -funwind-tables -fstack-protector-strong -no-canonical-prefixes -D__BIONIC_NO_PAGE_SIZE_MACRO -D_FORTIFY_SOURCE=2 -Wformat -Werror=format-security   -fno-limit-debug-info  -fPIC -O3 -std=gnu++11 -o CMakeFiles/3beans.dir/home/vinnymac/Sites/vinnymac/3Beans/src/core/convert/sha.cpp.o -c /home/vinnymac/Sites/vinnymac/3Beans/src/core/convert/sha.cpp",
+  "file": "/home/vinnymac/Sites/vinnymac/3Beans/src/core/convert/sha.cpp"
+},
+{
+  "directory": "/home/vinnymac/Sites/vinnymac/3Beans/src/android/app/.cxx/Debug/2n1l371q/x86_64",
+  "command": "/opt/android-sdk/ndk/27.3.13750724/toolchains/llvm/prebuilt/linux-x86_64/bin/clang++ --target=x86_64-none-linux-android24 --sysroot=/opt/android-sdk/ndk/27.3.13750724/toolchains/llvm/prebuilt/linux-x86_64/sysroot -DLOG_LEVEL=0 -D_3beans_EXPORTS -I/home/vinnymac/Sites/vinnymac/3Beans/src/android/app/src/main/cpp/shim -g -DANDROID -fdata-sections -ffunction-sections -funwind-tables -fstack-protector-strong -no-canonical-prefixes -D__BIONIC_NO_PAGE_SIZE_MACRO -D_FORTIFY_SOURCE=2 -Wformat -Werror=format-security   -fno-limit-debug-info  -fPIC -O3 -std=gnu++11 -o CMakeFiles/3beans.dir/home/vinnymac/Sites/vinnymac/3Beans/src/core/convert/y2r.cpp.o -c /home/vinnymac/Sites/vinnymac/3Beans/src/core/convert/y2r.cpp",
+  "file": "/home/vinnymac/Sites/vinnymac/3Beans/src/core/convert/y2r.cpp"
+},
+{
+  "directory": "/home/vinnymac/Sites/vinnymac/3Beans/src/android/app/.cxx/Debug/2n1l371q/x86_64",
+  "command": "/opt/android-sdk/ndk/27.3.13750724/toolchains/llvm/prebuilt/linux-x86_64/bin/clang++ --target=x86_64-none-linux-android24 --sysroot=/opt/android-sdk/ndk/27.3.13750724/toolchains/llvm/prebuilt/linux-x86_64/sysroot -DLOG_LEVEL=0 -D_3beans_EXPORTS -I/home/vinnymac/Sites/vinnymac/3Beans/src/android/app/src/main/cpp/shim -g -DANDROID -fdata-sections -ffunction-sections -funwind-tables -fstack-protector-strong -no-canonical-prefixes -D__BIONIC_NO_PAGE_SIZE_MACRO -D_FORTIFY_SOURCE=2 -Wformat -Werror=format-security   -fno-limit-debug-info  -fPIC -O3 -std=gnu++11 -o CMakeFiles/3beans.dir/home/vinnymac/Sites/vinnymac/3Beans/src/core/core.cpp.o -c /home/vinnymac/Sites/vinnymac/3Beans/src/core/core.cpp",
+  "file": "/home/vinnymac/Sites/vinnymac/3Beans/src/core/core.cpp"
+},
+{
+  "directory": "/home/vinnymac/Sites/vinnymac/3Beans/src/android/app/.cxx/Debug/2n1l371q/x86_64",
+  "command": "/opt/android-sdk/ndk/27.3.13750724/toolchains/llvm/prebuilt/linux-x86_64/bin/clang++ --target=x86_64-none-linux-android24 --sysroot=/opt/android-sdk/ndk/27.3.13750724/toolchains/llvm/prebuilt/linux-x86_64/sysroot -DLOG_LEVEL=0 -D_3beans_EXPORTS -I/home/vinnymac/Sites/vinnymac/3Beans/src/android/app/src/main/cpp/shim -g -DANDROID -fdata-sections -ffunction-sections -funwind-tables -fstack-protector-strong -no-canonical-prefixes -D__BIONIC_NO_PAGE_SIZE_MACRO -D_FORTIFY_SOURCE=2 -Wformat -Werror=format-security   -fno-limit-debug-info  -fPIC -O3 -std=gnu++11 -o CMakeFiles/3beans.dir/home/vinnymac/Sites/vinnymac/3Beans/src/core/dsp/csnd.cpp.o -c /home/vinnymac/Sites/vinnymac/3Beans/src/core/dsp/csnd.cpp",
+  "file": "/home/vinnymac/Sites/vinnymac/3Beans/src/core/dsp/csnd.cpp"
+},
+{
+  "directory": "/home/vinnymac/Sites/vinnymac/3Beans/src/android/app/.cxx/Debug/2n1l371q/x86_64",
+  "command": "/opt/android-sdk/ndk/27.3.13750724/toolchains/llvm/prebuilt/linux-x86_64/bin/clang++ --target=x86_64-none-linux-android24 --sysroot=/opt/android-sdk/ndk/27.3.13750724/toolchains/llvm/prebuilt/linux-x86_64/sysroot -DLOG_LEVEL=0 -D_3beans_EXPORTS -I/home/vinnymac/Sites/vinnymac/3Beans/src/android/app/src/main/cpp/shim -g -DANDROID -fdata-sections -ffunction-sections -funwind-tables -fstack-protector-strong -no-canonical-prefixes -D__BIONIC_NO_PAGE_SIZE_MACRO -D_FORTIFY_SOURCE=2 -Wformat -Werror=format-security   -fno-limit-debug-info  -fPIC -O3 -std=gnu++11 -o CMakeFiles/3beans.dir/home/vinnymac/Sites/vinnymac/3Beans/src/core/dsp/dsp_hle.cpp.o -c /home/vinnymac/Sites/vinnymac/3Beans/src/core/dsp/dsp_hle.cpp",
+  "file": "/home/vinnymac/Sites/vinnymac/3Beans/src/core/dsp/dsp_hle.cpp"
+},
+{
+  "directory": "/home/vinnymac/Sites/vinnymac/3Beans/src/android/app/.cxx/Debug/2n1l371q/x86_64",
+  "command": "/opt/android-sdk/ndk/27.3.13750724/toolchains/llvm/prebuilt/linux-x86_64/bin/clang++ --target=x86_64-none-linux-android24 --sysroot=/opt/android-sdk/ndk/27.3.13750724/toolchains/llvm/prebuilt/linux-x86_64/sysroot -DLOG_LEVEL=0 -D_3beans_EXPORTS -I/home/vinnymac/Sites/vinnymac/3Beans/src/android/app/src/main/cpp/shim -g -DANDROID -fdata-sections -ffunction-sections -funwind-tables -fstack-protector-strong -no-canonical-prefixes -D__BIONIC_NO_PAGE_SIZE_MACRO -D_FORTIFY_SOURCE=2 -Wformat -Werror=format-security   -fno-limit-debug-info  -fPIC -O3 -std=gnu++11 -o CMakeFiles/3beans.dir/home/vinnymac/Sites/vinnymac/3Beans/src/core/dsp/dsp_lle.cpp.o -c /home/vinnymac/Sites/vinnymac/3Beans/src/core/dsp/dsp_lle.cpp",
+  "file": "/home/vinnymac/Sites/vinnymac/3Beans/src/core/dsp/dsp_lle.cpp"
+},
+{
+  "directory": "/home/vinnymac/Sites/vinnymac/3Beans/src/android/app/.cxx/Debug/2n1l371q/x86_64",
+  "command": "/opt/android-sdk/ndk/27.3.13750724/toolchains/llvm/prebuilt/linux-x86_64/bin/clang++ --target=x86_64-none-linux-android24 --sysroot=/opt/android-sdk/ndk/27.3.13750724/toolchains/llvm/prebuilt/linux-x86_64/sysroot -DLOG_LEVEL=0 -D_3beans_EXPORTS -I/home/vinnymac/Sites/vinnymac/3Beans/src/android/app/src/main/cpp/shim -g -DANDROID -fdata-sections -ffunction-sections -funwind-tables -fstack-protector-strong -no-canonical-prefixes -D__BIONIC_NO_PAGE_SIZE_MACRO -D_FORTIFY_SOURCE=2 -Wformat -Werror=format-security   -fno-limit-debug-info  -fPIC -O3 -std=gnu++11 -o CMakeFiles/3beans.dir/home/vinnymac/Sites/vinnymac/3Beans/src/core/dsp/teak_interp.cpp.o -c /home/vinnymac/Sites/vinnymac/3Beans/src/core/dsp/teak_interp.cpp",
+  "file": "/home/vinnymac/Sites/vinnymac/3Beans/src/core/dsp/teak_interp.cpp"
+},
+{
+  "directory": "/home/vinnymac/Sites/vinnymac/3Beans/src/android/app/.cxx/Debug/2n1l371q/x86_64",
+  "command": "/opt/android-sdk/ndk/27.3.13750724/toolchains/llvm/prebuilt/linux-x86_64/bin/clang++ --target=x86_64-none-linux-android24 --sysroot=/opt/android-sdk/ndk/27.3.13750724/toolchains/llvm/prebuilt/linux-x86_64/sysroot -DLOG_LEVEL=0 -D_3beans_EXPORTS -I/home/vinnymac/Sites/vinnymac/3Beans/src/android/app/src/main/cpp/shim -g -DANDROID -fdata-sections -ffunction-sections -funwind-tables -fstack-protector-strong -no-canonical-prefixes -D__BIONIC_NO_PAGE_SIZE_MACRO -D_FORTIFY_SOURCE=2 -Wformat -Werror=format-security   -fno-limit-debug-info  -fPIC -O3 -std=gnu++11 -o CMakeFiles/3beans.dir/home/vinnymac/Sites/vinnymac/3Beans/src/core/dsp/teak_interp_alu.cpp.o -c /home/vinnymac/Sites/vinnymac/3Beans/src/core/dsp/teak_interp_alu.cpp",
+  "file": "/home/vinnymac/Sites/vinnymac/3Beans/src/core/dsp/teak_interp_alu.cpp"
+},
+{
+  "directory": "/home/vinnymac/Sites/vinnymac/3Beans/src/android/app/.cxx/Debug/2n1l371q/x86_64",
+  "command": "/opt/android-sdk/ndk/27.3.13750724/toolchains/llvm/prebuilt/linux-x86_64/bin/clang++ --target=x86_64-none-linux-android24 --sysroot=/opt/android-sdk/ndk/27.3.13750724/toolchains/llvm/prebuilt/linux-x86_64/sysroot -DLOG_LEVEL=0 -D_3beans_EXPORTS -I/home/vinnymac/Sites/vinnymac/3Beans/src/android/app/src/main/cpp/shim -g -DANDROID -fdata-sections -ffunction-sections -funwind-tables -fstack-protector-strong -no-canonical-prefixes -D__BIONIC_NO_PAGE_SIZE_MACRO -D_FORTIFY_SOURCE=2 -Wformat -Werror=format-security   -fno-limit-debug-info  -fPIC -O3 -std=gnu++11 -o CMakeFiles/3beans.dir/home/vinnymac/Sites/vinnymac/3Beans/src/core/dsp/teak_interp_control.cpp.o -c /home/vinnymac/Sites/vinnymac/3Beans/src/core/dsp/teak_interp_control.cpp",
+  "file": "/home/vinnymac/Sites/vinnymac/3Beans/src/core/dsp/teak_interp_control.cpp"
+},
+{
+  "directory": "/home/vinnymac/Sites/vinnymac/3Beans/src/android/app/.cxx/Debug/2n1l371q/x86_64",
+  "command": "/opt/android-sdk/ndk/27.3.13750724/toolchains/llvm/prebuilt/linux-x86_64/bin/clang++ --target=x86_64-none-linux-android24 --sysroot=/opt/android-sdk/ndk/27.3.13750724/toolchains/llvm/prebuilt/linux-x86_64/sysroot -DLOG_LEVEL=0 -D_3beans_EXPORTS -I/home/vinnymac/Sites/vinnymac/3Beans/src/android/app/src/main/cpp/shim -g -DANDROID -fdata-sections -ffunction-sections -funwind-tables -fstack-protector-strong -no-canonical-prefixes -D__BIONIC_NO_PAGE_SIZE_MACRO -D_FORTIFY_SOURCE=2 -Wformat -Werror=format-security   -fno-limit-debug-info  -fPIC -O3 -std=gnu++11 -o CMakeFiles/3beans.dir/home/vinnymac/Sites/vinnymac/3Beans/src/core/dsp/teak_interp_lookup.cpp.o -c /home/vinnymac/Sites/vinnymac/3Beans/src/core/dsp/teak_interp_lookup.cpp",
+  "file": "/home/vinnymac/Sites/vinnymac/3Beans/src/core/dsp/teak_interp_lookup.cpp"
+},
+{
+  "directory": "/home/vinnymac/Sites/vinnymac/3Beans/src/android/app/.cxx/Debug/2n1l371q/x86_64",
+  "command": "/opt/android-sdk/ndk/27.3.13750724/toolchains/llvm/prebuilt/linux-x86_64/bin/clang++ --target=x86_64-none-linux-android24 --sysroot=/opt/android-sdk/ndk/27.3.13750724/toolchains/llvm/prebuilt/linux-x86_64/sysroot -DLOG_LEVEL=0 -D_3beans_EXPORTS -I/home/vinnymac/Sites/vinnymac/3Beans/src/android/app/src/main/cpp/shim -g -DANDROID -fdata-sections -ffunction-sections -funwind-tables -fstack-protector-strong -no-canonical-prefixes -D__BIONIC_NO_PAGE_SIZE_MACRO -D_FORTIFY_SOURCE=2 -Wformat -Werror=format-security   -fno-limit-debug-info  -fPIC -O3 -std=gnu++11 -o CMakeFiles/3beans.dir/home/vinnymac/Sites/vinnymac/3Beans/src/core/dsp/teak_interp_transfer.cpp.o -c /home/vinnymac/Sites/vinnymac/3Beans/src/core/dsp/teak_interp_transfer.cpp",
+  "file": "/home/vinnymac/Sites/vinnymac/3Beans/src/core/dsp/teak_interp_transfer.cpp"
+},
+{
+  "directory": "/home/vinnymac/Sites/vinnymac/3Beans/src/android/app/.cxx/Debug/2n1l371q/x86_64",
+  "command": "/opt/android-sdk/ndk/27.3.13750724/toolchains/llvm/prebuilt/linux-x86_64/bin/clang++ --target=x86_64-none-linux-android24 --sysroot=/opt/android-sdk/ndk/27.3.13750724/toolchains/llvm/prebuilt/linux-x86_64/sysroot -DLOG_LEVEL=0 -D_3beans_EXPORTS -I/home/vinnymac/Sites/vinnymac/3Beans/src/android/app/src/main/cpp/shim -g -DANDROID -fdata-sections -ffunction-sections -funwind-tables -fstack-protector-strong -no-canonical-prefixes -D__BIONIC_NO_PAGE_SIZE_MACRO -D_FORTIFY_SOURCE=2 -Wformat -Werror=format-security   -fno-limit-debug-info  -fPIC -O3 -std=gnu++11 -o CMakeFiles/3beans.dir/home/vinnymac/Sites/vinnymac/3Beans/src/core/gpu/gpu.cpp.o -c /home/vinnymac/Sites/vinnymac/3Beans/src/core/gpu/gpu.cpp",
+  "file": "/home/vinnymac/Sites/vinnymac/3Beans/src/core/gpu/gpu.cpp"
+},
+{
+  "directory": "/home/vinnymac/Sites/vinnymac/3Beans/src/android/app/.cxx/Debug/2n1l371q/x86_64",
+  "command": "/opt/android-sdk/ndk/27.3.13750724/toolchains/llvm/prebuilt/linux-x86_64/bin/clang++ --target=x86_64-none-linux-android24 --sysroot=/opt/android-sdk/ndk/27.3.13750724/toolchains/llvm/prebuilt/linux-x86_64/sysroot -DLOG_LEVEL=0 -D_3beans_EXPORTS -I/home/vinnymac/Sites/vinnymac/3Beans/src/android/app/src/main/cpp/shim -g -DANDROID -fdata-sections -ffunction-sections -funwind-tables -fstack-protector-strong -no-canonical-prefixes -D__BIONIC_NO_PAGE_SIZE_MACRO -D_FORTIFY_SOURCE=2 -Wformat -Werror=format-security   -fno-limit-debug-info  -fPIC -O3 -std=gnu++11 -o CMakeFiles/3beans.dir/home/vinnymac/Sites/vinnymac/3Beans/src/core/gpu/gpu_cmd.cpp.o -c /home/vinnymac/Sites/vinnymac/3Beans/src/core/gpu/gpu_cmd.cpp",
+  "file": "/home/vinnymac/Sites/vinnymac/3Beans/src/core/gpu/gpu_cmd.cpp"
+},
+{
+  "directory": "/home/vinnymac/Sites/vinnymac/3Beans/src/android/app/.cxx/Debug/2n1l371q/x86_64",
+  "command": "/opt/android-sdk/ndk/27.3.13750724/toolchains/llvm/prebuilt/linux-x86_64/bin/clang++ --target=x86_64-none-linux-android24 --sysroot=/opt/android-sdk/ndk/27.3.13750724/toolchains/llvm/prebuilt/linux-x86_64/sysroot -DLOG_LEVEL=0 -D_3beans_EXPORTS -I/home/vinnymac/Sites/vinnymac/3Beans/src/android/app/src/main/cpp/shim -g -DANDROID -fdata-sections -ffunction-sections -funwind-tables -fstack-protector-strong -no-canonical-prefixes -D__BIONIC_NO_PAGE_SIZE_MACRO -D_FORTIFY_SOURCE=2 -Wformat -Werror=format-security   -fno-limit-debug-info  -fPIC -O3 -std=gnu++11 -o CMakeFiles/3beans.dir/home/vinnymac/Sites/vinnymac/3Beans/src/core/gpu/gpu_lookup.cpp.o -c /home/vinnymac/Sites/vinnymac/3Beans/src/core/gpu/gpu_lookup.cpp",
+  "file": "/home/vinnymac/Sites/vinnymac/3Beans/src/core/gpu/gpu_lookup.cpp"
+},
+{
+  "directory": "/home/vinnymac/Sites/vinnymac/3Beans/src/android/app/.cxx/Debug/2n1l371q/x86_64",
+  "command": "/opt/android-sdk/ndk/27.3.13750724/toolchains/llvm/prebuilt/linux-x86_64/bin/clang++ --target=x86_64-none-linux-android24 --sysroot=/opt/android-sdk/ndk/27.3.13750724/toolchains/llvm/prebuilt/linux-x86_64/sysroot -DLOG_LEVEL=0 -D_3beans_EXPORTS -I/home/vinnymac/Sites/vinnymac/3Beans/src/android/app/src/main/cpp/shim -g -DANDROID -fdata-sections -ffunction-sections -funwind-tables -fstack-protector-strong -no-canonical-prefixes -D__BIONIC_NO_PAGE_SIZE_MACRO -D_FORTIFY_SOURCE=2 -Wformat -Werror=format-security   -fno-limit-debug-info  -fPIC -O3 -std=gnu++11 -o CMakeFiles/3beans.dir/home/vinnymac/Sites/vinnymac/3Beans/src/core/gpu/gpu_render_ogl.cpp.o -c /home/vinnymac/Sites/vinnymac/3Beans/src/core/gpu/gpu_render_ogl.cpp",
+  "file": "/home/vinnymac/Sites/vinnymac/3Beans/src/core/gpu/gpu_render_ogl.cpp"
+},
+{
+  "directory": "/home/vinnymac/Sites/vinnymac/3Beans/src/android/app/.cxx/Debug/2n1l371q/x86_64",
+  "command": "/opt/android-sdk/ndk/27.3.13750724/toolchains/llvm/prebuilt/linux-x86_64/bin/clang++ --target=x86_64-none-linux-android24 --sysroot=/opt/android-sdk/ndk/27.3.13750724/toolchains/llvm/prebuilt/linux-x86_64/sysroot -DLOG_LEVEL=0 -D_3beans_EXPORTS -I/home/vinnymac/Sites/vinnymac/3Beans/src/android/app/src/main/cpp/shim -g -DANDROID -fdata-sections -ffunction-sections -funwind-tables -fstack-protector-strong -no-canonical-prefixes -D__BIONIC_NO_PAGE_SIZE_MACRO -D_FORTIFY_SOURCE=2 -Wformat -Werror=format-security   -fno-limit-debug-info  -fPIC -O3 -std=gnu++11 -o CMakeFiles/3beans.dir/home/vinnymac/Sites/vinnymac/3Beans/src/core/gpu/gpu_render_soft.cpp.o -c /home/vinnymac/Sites/vinnymac/3Beans/src/core/gpu/gpu_render_soft.cpp",
+  "file": "/home/vinnymac/Sites/vinnymac/3Beans/src/core/gpu/gpu_render_soft.cpp"
+},
+{
+  "directory": "/home/vinnymac/Sites/vinnymac/3Beans/src/android/app/.cxx/Debug/2n1l371q/x86_64",
+  "command": "/opt/android-sdk/ndk/27.3.13750724/toolchains/llvm/prebuilt/linux-x86_64/bin/clang++ --target=x86_64-none-linux-android24 --sysroot=/opt/android-sdk/ndk/27.3.13750724/toolchains/llvm/prebuilt/linux-x86_64/sysroot -DLOG_LEVEL=0 -D_3beans_EXPORTS -I/home/vinnymac/Sites/vinnymac/3Beans/src/android/app/src/main/cpp/shim -g -DANDROID -fdata-sections -ffunction-sections -funwind-tables -fstack-protector-strong -no-canonical-prefixes -D__BIONIC_NO_PAGE_SIZE_MACRO -D_FORTIFY_SOURCE=2 -Wformat -Werror=format-security   -fno-limit-debug-info  -fPIC -O3 -std=gnu++11 -o CMakeFiles/3beans.dir/home/vinnymac/Sites/vinnymac/3Beans/src/core/gpu/gpu_shader_glsl.cpp.o -c /home/vinnymac/Sites/vinnymac/3Beans/src/core/gpu/gpu_shader_glsl.cpp",
+  "file": "/home/vinnymac/Sites/vinnymac/3Beans/src/core/gpu/gpu_shader_glsl.cpp"
+},
+{
+  "directory": "/home/vinnymac/Sites/vinnymac/3Beans/src/android/app/.cxx/Debug/2n1l371q/x86_64",
+  "command": "/opt/android-sdk/ndk/27.3.13750724/toolchains/llvm/prebuilt/linux-x86_64/bin/clang++ --target=x86_64-none-linux-android24 --sysroot=/opt/android-sdk/ndk/27.3.13750724/toolchains/llvm/prebuilt/linux-x86_64/sysroot -DLOG_LEVEL=0 -D_3beans_EXPORTS -I/home/vinnymac/Sites/vinnymac/3Beans/src/android/app/src/main/cpp/shim -g -DANDROID -fdata-sections -ffunction-sections -funwind-tables -fstack-protector-strong -no-canonical-prefixes -D__BIONIC_NO_PAGE_SIZE_MACRO -D_FORTIFY_SOURCE=2 -Wformat -Werror=format-security   -fno-limit-debug-info  -fPIC -O3 -std=gnu++11 -o CMakeFiles/3beans.dir/home/vinnymac/Sites/vinnymac/3Beans/src/core/gpu/gpu_shader_interp.cpp.o -c /home/vinnymac/Sites/vinnymac/3Beans/src/core/gpu/gpu_shader_interp.cpp",
+  "file": "/home/vinnymac/Sites/vinnymac/3Beans/src/core/gpu/gpu_shader_interp.cpp"
+},
+{
+  "directory": "/home/vinnymac/Sites/vinnymac/3Beans/src/android/app/.cxx/Debug/2n1l371q/x86_64",
+  "command": "/opt/android-sdk/ndk/27.3.13750724/toolchains/llvm/prebuilt/linux-x86_64/bin/clang++ --target=x86_64-none-linux-android24 --sysroot=/opt/android-sdk/ndk/27.3.13750724/toolchains/llvm/prebuilt/linux-x86_64/sysroot -DLOG_LEVEL=0 -D_3beans_EXPORTS -I/home/vinnymac/Sites/vinnymac/3Beans/src/android/app/src/main/cpp/shim -g -DANDROID -fdata-sections -ffunction-sections -funwind-tables -fstack-protector-strong -no-canonical-prefixes -D__BIONIC_NO_PAGE_SIZE_MACRO -D_FORTIFY_SOURCE=2 -Wformat -Werror=format-security   -fno-limit-debug-info  -fPIC -O3 -std=gnu++11 -o CMakeFiles/3beans.dir/home/vinnymac/Sites/vinnymac/3Beans/src/core/gpu/pdc.cpp.o -c /home/vinnymac/Sites/vinnymac/3Beans/src/core/gpu/pdc.cpp",
+  "file": "/home/vinnymac/Sites/vinnymac/3Beans/src/core/gpu/pdc.cpp"
+},
+{
+  "directory": "/home/vinnymac/Sites/vinnymac/3Beans/src/android/app/.cxx/Debug/2n1l371q/x86_64",
+  "command": "/opt/android-sdk/ndk/27.3.13750724/toolchains/llvm/prebuilt/linux-x86_64/bin/clang++ --target=x86_64-none-linux-android24 --sysroot=/opt/android-sdk/ndk/27.3.13750724/toolchains/llvm/prebuilt/linux-x86_64/sysroot -DLOG_LEVEL=0 -D_3beans_EXPORTS -I/home/vinnymac/Sites/vinnymac/3Beans/src/android/app/src/main/cpp/shim -g -DANDROID -fdata-sections -ffunction-sections -funwind-tables -fstack-protector-strong -no-canonical-prefixes -D__BIONIC_NO_PAGE_SIZE_MACRO -D_FORTIFY_SOURCE=2 -Wformat -Werror=format-security   -fno-limit-debug-info  -fPIC -O3 -std=gnu++11 -o CMakeFiles/3beans.dir/home/vinnymac/Sites/vinnymac/3Beans/src/core/io/cartridge.cpp.o -c /home/vinnymac/Sites/vinnymac/3Beans/src/core/io/cartridge.cpp",
+  "file": "/home/vinnymac/Sites/vinnymac/3Beans/src/core/io/cartridge.cpp"
+},
+{
+  "directory": "/home/vinnymac/Sites/vinnymac/3Beans/src/android/app/.cxx/Debug/2n1l371q/x86_64",
+  "command": "/opt/android-sdk/ndk/27.3.13750724/toolchains/llvm/prebuilt/linux-x86_64/bin/clang --target=x86_64-none-linux-android24 --sysroot=/opt/android-sdk/ndk/27.3.13750724/toolchains/llvm/prebuilt/linux-x86_64/sysroot -DLOG_LEVEL=0 -D_3beans_EXPORTS -I/home/vinnymac/Sites/vinnymac/3Beans/src/android/app/src/main/cpp/shim -g -DANDROID -fdata-sections -ffunction-sections -funwind-tables -fstack-protector-strong -no-canonical-prefixes -D__BIONIC_NO_PAGE_SIZE_MACRO -D_FORTIFY_SOURCE=2 -Wformat -Werror=format-security  -fno-limit-debug-info  -fPIC -O3 -std=gnu11 -o CMakeFiles/3beans.dir/home/vinnymac/Sites/vinnymac/3Beans/src/core/io/fatfs/diskio.c.o -c /home/vinnymac/Sites/vinnymac/3Beans/src/core/io/fatfs/diskio.c",
+  "file": "/home/vinnymac/Sites/vinnymac/3Beans/src/core/io/fatfs/diskio.c"
+},
+{
+  "directory": "/home/vinnymac/Sites/vinnymac/3Beans/src/android/app/.cxx/Debug/2n1l371q/x86_64",
+  "command": "/opt/android-sdk/ndk/27.3.13750724/toolchains/llvm/prebuilt/linux-x86_64/bin/clang --target=x86_64-none-linux-android24 --sysroot=/opt/android-sdk/ndk/27.3.13750724/toolchains/llvm/prebuilt/linux-x86_64/sysroot -DLOG_LEVEL=0 -D_3beans_EXPORTS -I/home/vinnymac/Sites/vinnymac/3Beans/src/android/app/src/main/cpp/shim -g -DANDROID -fdata-sections -ffunction-sections -funwind-tables -fstack-protector-strong -no-canonical-prefixes -D__BIONIC_NO_PAGE_SIZE_MACRO -D_FORTIFY_SOURCE=2 -Wformat -Werror=format-security  -fno-limit-debug-info  -fPIC -O3 -std=gnu11 -o CMakeFiles/3beans.dir/home/vinnymac/Sites/vinnymac/3Beans/src/core/io/fatfs/ff.c.o -c /home/vinnymac/Sites/vinnymac/3Beans/src/core/io/fatfs/ff.c",
+  "file": "/home/vinnymac/Sites/vinnymac/3Beans/src/core/io/fatfs/ff.c"
+},
+{
+  "directory": "/home/vinnymac/Sites/vinnymac/3Beans/src/android/app/.cxx/Debug/2n1l371q/x86_64",
+  "command": "/opt/android-sdk/ndk/27.3.13750724/toolchains/llvm/prebuilt/linux-x86_64/bin/clang --target=x86_64-none-linux-android24 --sysroot=/opt/android-sdk/ndk/27.3.13750724/toolchains/llvm/prebuilt/linux-x86_64/sysroot -DLOG_LEVEL=0 -D_3beans_EXPORTS -I/home/vinnymac/Sites/vinnymac/3Beans/src/android/app/src/main/cpp/shim -g -DANDROID -fdata-sections -ffunction-sections -funwind-tables -fstack-protector-strong -no-canonical-prefixes -D__BIONIC_NO_PAGE_SIZE_MACRO -D_FORTIFY_SOURCE=2 -Wformat -Werror=format-security  -fno-limit-debug-info  -fPIC -O3 -std=gnu11 -o CMakeFiles/3beans.dir/home/vinnymac/Sites/vinnymac/3Beans/src/core/io/fatfs/ffunicode.c.o -c /home/vinnymac/Sites/vinnymac/3Beans/src/core/io/fatfs/ffunicode.c",
+  "file": "/home/vinnymac/Sites/vinnymac/3Beans/src/core/io/fatfs/ffunicode.c"
+},
+{
+  "directory": "/home/vinnymac/Sites/vinnymac/3Beans/src/android/app/.cxx/Debug/2n1l371q/x86_64",
+  "command": "/opt/android-sdk/ndk/27.3.13750724/toolchains/llvm/prebuilt/linux-x86_64/bin/clang++ --target=x86_64-none-linux-android24 --sysroot=/opt/android-sdk/ndk/27.3.13750724/toolchains/llvm/prebuilt/linux-x86_64/sysroot -DLOG_LEVEL=0 -D_3beans_EXPORTS -I/home/vinnymac/Sites/vinnymac/3Beans/src/android/app/src/main/cpp/shim -g -DANDROID -fdata-sections -ffunction-sections -funwind-tables -fstack-protector-strong -no-canonical-prefixes -D__BIONIC_NO_PAGE_SIZE_MACRO -D_FORTIFY_SOURCE=2 -Wformat -Werror=format-security   -fno-limit-debug-info  -fPIC -O3 -std=gnu++11 -o CMakeFiles/3beans.dir/home/vinnymac/Sites/vinnymac/3Beans/src/core/io/file_block.cpp.o -c /home/vinnymac/Sites/vinnymac/3Beans/src/core/io/file_block.cpp",
+  "file": "/home/vinnymac/Sites/vinnymac/3Beans/src/core/io/file_block.cpp"
+},
+{
+  "directory": "/home/vinnymac/Sites/vinnymac/3Beans/src/android/app/.cxx/Debug/2n1l371q/x86_64",
+  "command": "/opt/android-sdk/ndk/27.3.13750724/toolchains/llvm/prebuilt/linux-x86_64/bin/clang++ --target=x86_64-none-linux-android24 --sysroot=/opt/android-sdk/ndk/27.3.13750724/toolchains/llvm/prebuilt/linux-x86_64/sysroot -DLOG_LEVEL=0 -D_3beans_EXPORTS -I/home/vinnymac/Sites/vinnymac/3Beans/src/android/app/src/main/cpp/shim -g -DANDROID -fdata-sections -ffunction-sections -funwind-tables -fstack-protector-strong -no-canonical-prefixes -D__BIONIC_NO_PAGE_SIZE_MACRO -D_FORTIFY_SOURCE=2 -Wformat -Werror=format-security   -fno-limit-debug-info  -fPIC -O3 -std=gnu++11 -o CMakeFiles/3beans.dir/home/vinnymac/Sites/vinnymac/3Beans/src/core/io/i2c.cpp.o -c /home/vinnymac/Sites/vinnymac/3Beans/src/core/io/i2c.cpp",
+  "file": "/home/vinnymac/Sites/vinnymac/3Beans/src/core/io/i2c.cpp"
+},
+{
+  "directory": "/home/vinnymac/Sites/vinnymac/3Beans/src/android/app/.cxx/Debug/2n1l371q/x86_64",
+  "command": "/opt/android-sdk/ndk/27.3.13750724/toolchains/llvm/prebuilt/linux-x86_64/bin/clang++ --target=x86_64-none-linux-android24 --sysroot=/opt/android-sdk/ndk/27.3.13750724/toolchains/llvm/prebuilt/linux-x86_64/sysroot -DLOG_LEVEL=0 -D_3beans_EXPORTS -I/home/vinnymac/Sites/vinnymac/3Beans/src/android/app/src/main/cpp/shim -g -DANDROID -fdata-sections -ffunction-sections -funwind-tables -fstack-protector-strong -no-canonical-prefixes -D__BIONIC_NO_PAGE_SIZE_MACRO -D_FORTIFY_SOURCE=2 -Wformat -Werror=format-security   -fno-limit-debug-info  -fPIC -O3 -std=gnu++11 -o CMakeFiles/3beans.dir/home/vinnymac/Sites/vinnymac/3Beans/src/core/io/input.cpp.o -c /home/vinnymac/Sites/vinnymac/3Beans/src/core/io/input.cpp",
+  "file": "/home/vinnymac/Sites/vinnymac/3Beans/src/core/io/input.cpp"
+},
+{
+  "directory": "/home/vinnymac/Sites/vinnymac/3Beans/src/android/app/.cxx/Debug/2n1l371q/x86_64",
+  "command": "/opt/android-sdk/ndk/27.3.13750724/toolchains/llvm/prebuilt/linux-x86_64/bin/clang++ --target=x86_64-none-linux-android24 --sysroot=/opt/android-sdk/ndk/27.3.13750724/toolchains/llvm/prebuilt/linux-x86_64/sysroot -DLOG_LEVEL=0 -D_3beans_EXPORTS -I/home/vinnymac/Sites/vinnymac/3Beans/src/android/app/src/main/cpp/shim -g -DANDROID -fdata-sections -ffunction-sections -funwind-tables -fstack-protector-strong -no-canonical-prefixes -D__BIONIC_NO_PAGE_SIZE_MACRO -D_FORTIFY_SOURCE=2 -Wformat -Werror=format-security   -fno-limit-debug-info  -fPIC -O3 -std=gnu++11 -o CMakeFiles/3beans.dir/home/vinnymac/Sites/vinnymac/3Beans/src/core/io/pxi.cpp.o -c /home/vinnymac/Sites/vinnymac/3Beans/src/core/io/pxi.cpp",
+  "file": "/home/vinnymac/Sites/vinnymac/3Beans/src/core/io/pxi.cpp"
+},
+{
+  "directory": "/home/vinnymac/Sites/vinnymac/3Beans/src/android/app/.cxx/Debug/2n1l371q/x86_64",
+  "command": "/opt/android-sdk/ndk/27.3.13750724/toolchains/llvm/prebuilt/linux-x86_64/bin/clang++ --target=x86_64-none-linux-android24 --sysroot=/opt/android-sdk/ndk/27.3.13750724/toolchains/llvm/prebuilt/linux-x86_64/sysroot -DLOG_LEVEL=0 -D_3beans_EXPORTS -I/home/vinnymac/Sites/vinnymac/3Beans/src/android/app/src/main/cpp/shim -g -DANDROID -fdata-sections -ffunction-sections -funwind-tables -fstack-protector-strong -no-canonical-prefixes -D__BIONIC_NO_PAGE_SIZE_MACRO -D_FORTIFY_SOURCE=2 -Wformat -Werror=format-security   -fno-limit-debug-info  -fPIC -O3 -std=gnu++11 -o CMakeFiles/3beans.dir/home/vinnymac/Sites/vinnymac/3Beans/src/core/io/sd_mmc.cpp.o -c /home/vinnymac/Sites/vinnymac/3Beans/src/core/io/sd_mmc.cpp",
+  "file": "/home/vinnymac/Sites/vinnymac/3Beans/src/core/io/sd_mmc.cpp"
+},
+{
+  "directory": "/home/vinnymac/Sites/vinnymac/3Beans/src/android/app/.cxx/Debug/2n1l371q/x86_64",
+  "command": "/opt/android-sdk/ndk/27.3.13750724/toolchains/llvm/prebuilt/linux-x86_64/bin/clang++ --target=x86_64-none-linux-android24 --sysroot=/opt/android-sdk/ndk/27.3.13750724/toolchains/llvm/prebuilt/linux-x86_64/sysroot -DLOG_LEVEL=0 -D_3beans_EXPORTS -I/home/vinnymac/Sites/vinnymac/3Beans/src/android/app/src/main/cpp/shim -g -DANDROID -fdata-sections -ffunction-sections -funwind-tables -fstack-protector-strong -no-canonical-prefixes -D__BIONIC_NO_PAGE_SIZE_MACRO -D_FORTIFY_SOURCE=2 -Wformat -Werror=format-security   -fno-limit-debug-info  -fPIC -O3 -std=gnu++11 -o CMakeFiles/3beans.dir/home/vinnymac/Sites/vinnymac/3Beans/src/core/io/virtual_fat.cpp.o -c /home/vinnymac/Sites/vinnymac/3Beans/src/core/io/virtual_fat.cpp",
+  "file": "/home/vinnymac/Sites/vinnymac/3Beans/src/core/io/virtual_fat.cpp"
+},
+{
+  "directory": "/home/vinnymac/Sites/vinnymac/3Beans/src/android/app/.cxx/Debug/2n1l371q/x86_64",
+  "command": "/opt/android-sdk/ndk/27.3.13750724/toolchains/llvm/prebuilt/linux-x86_64/bin/clang++ --target=x86_64-none-linux-android24 --sysroot=/opt/android-sdk/ndk/27.3.13750724/toolchains/llvm/prebuilt/linux-x86_64/sysroot -DLOG_LEVEL=0 -D_3beans_EXPORTS -I/home/vinnymac/Sites/vinnymac/3Beans/src/android/app/src/main/cpp/shim -g -DANDROID -fdata-sections -ffunction-sections -funwind-tables -fstack-protector-strong -no-canonical-prefixes -D__BIONIC_NO_PAGE_SIZE_MACRO -D_FORTIFY_SOURCE=2 -Wformat -Werror=format-security   -fno-limit-debug-info  -fPIC -O3 -std=gnu++11 -o CMakeFiles/3beans.dir/home/vinnymac/Sites/vinnymac/3Beans/src/core/io/wifi.cpp.o -c /home/vinnymac/Sites/vinnymac/3Beans/src/core/io/wifi.cpp",
+  "file": "/home/vinnymac/Sites/vinnymac/3Beans/src/core/io/wifi.cpp"
+},
+{
+  "directory": "/home/vinnymac/Sites/vinnymac/3Beans/src/android/app/.cxx/Debug/2n1l371q/x86_64",
+  "command": "/opt/android-sdk/ndk/27.3.13750724/toolchains/llvm/prebuilt/linux-x86_64/bin/clang++ --target=x86_64-none-linux-android24 --sysroot=/opt/android-sdk/ndk/27.3.13750724/toolchains/llvm/prebuilt/linux-x86_64/sysroot -DLOG_LEVEL=0 -D_3beans_EXPORTS -I/home/vinnymac/Sites/vinnymac/3Beans/src/android/app/src/main/cpp/shim -g -DANDROID -fdata-sections -ffunction-sections -funwind-tables -fstack-protector-strong -no-canonical-prefixes -D__BIONIC_NO_PAGE_SIZE_MACRO -D_FORTIFY_SOURCE=2 -Wformat -Werror=format-security   -fno-limit-debug-info  -fPIC -O3 -std=gnu++11 -o CMakeFiles/3beans.dir/home/vinnymac/Sites/vinnymac/3Beans/src/core/memory/cdma.cpp.o -c /home/vinnymac/Sites/vinnymac/3Beans/src/core/memory/cdma.cpp",
+  "file": "/home/vinnymac/Sites/vinnymac/3Beans/src/core/memory/cdma.cpp"
+},
+{
+  "directory": "/home/vinnymac/Sites/vinnymac/3Beans/src/android/app/.cxx/Debug/2n1l371q/x86_64",
+  "command": "/opt/android-sdk/ndk/27.3.13750724/toolchains/llvm/prebuilt/linux-x86_64/bin/clang++ --target=x86_64-none-linux-android24 --sysroot=/opt/android-sdk/ndk/27.3.13750724/toolchains/llvm/prebuilt/linux-x86_64/sysroot -DLOG_LEVEL=0 -D_3beans_EXPORTS -I/home/vinnymac/Sites/vinnymac/3Beans/src/android/app/src/main/cpp/shim -g -DANDROID -fdata-sections -ffunction-sections -funwind-tables -fstack-protector-strong -no-canonical-prefixes -D__BIONIC_NO_PAGE_SIZE_MACRO -D_FORTIFY_SOURCE=2 -Wformat -Werror=format-security   -fno-limit-debug-info  -fPIC -O3 -std=gnu++11 -o CMakeFiles/3beans.dir/home/vinnymac/Sites/vinnymac/3Beans/src/core/memory/memory.cpp.o -c /home/vinnymac/Sites/vinnymac/3Beans/src/core/memory/memory.cpp",
+  "file": "/home/vinnymac/Sites/vinnymac/3Beans/src/core/memory/memory.cpp"
+},
+{
+  "directory": "/home/vinnymac/Sites/vinnymac/3Beans/src/android/app/.cxx/Debug/2n1l371q/x86_64",
+  "command": "/opt/android-sdk/ndk/27.3.13750724/toolchains/llvm/prebuilt/linux-x86_64/bin/clang++ --target=x86_64-none-linux-android24 --sysroot=/opt/android-sdk/ndk/27.3.13750724/toolchains/llvm/prebuilt/linux-x86_64/sysroot -DLOG_LEVEL=0 -D_3beans_EXPORTS -I/home/vinnymac/Sites/vinnymac/3Beans/src/android/app/src/main/cpp/shim -g -DANDROID -fdata-sections -ffunction-sections -funwind-tables -fstack-protector-strong -no-canonical-prefixes -D__BIONIC_NO_PAGE_SIZE_MACRO -D_FORTIFY_SOURCE=2 -Wformat -Werror=format-security   -fno-limit-debug-info  -fPIC -O3 -std=gnu++11 -o CMakeFiles/3beans.dir/home/vinnymac/Sites/vinnymac/3Beans/src/core/memory/memory_read.cpp.o -c /home/vinnymac/Sites/vinnymac/3Beans/src/core/memory/memory_read.cpp",
+  "file": "/home/vinnymac/Sites/vinnymac/3Beans/src/core/memory/memory_read.cpp"
+},
+{
+  "directory": "/home/vinnymac/Sites/vinnymac/3Beans/src/android/app/.cxx/Debug/2n1l371q/x86_64",
+  "command": "/opt/android-sdk/ndk/27.3.13750724/toolchains/llvm/prebuilt/linux-x86_64/bin/clang++ --target=x86_64-none-linux-android24 --sysroot=/opt/android-sdk/ndk/27.3.13750724/toolchains/llvm/prebuilt/linux-x86_64/sysroot -DLOG_LEVEL=0 -D_3beans_EXPORTS -I/home/vinnymac/Sites/vinnymac/3Beans/src/android/app/src/main/cpp/shim -g -DANDROID -fdata-sections -ffunction-sections -funwind-tables -fstack-protector-strong -no-canonical-prefixes -D__BIONIC_NO_PAGE_SIZE_MACRO -D_FORTIFY_SOURCE=2 -Wformat -Werror=format-security   -fno-limit-debug-info  -fPIC -O3 -std=gnu++11 -o CMakeFiles/3beans.dir/home/vinnymac/Sites/vinnymac/3Beans/src/core/memory/memory_write.cpp.o -c /home/vinnymac/Sites/vinnymac/3Beans/src/core/memory/memory_write.cpp",
+  "file": "/home/vinnymac/Sites/vinnymac/3Beans/src/core/memory/memory_write.cpp"
+},
+{
+  "directory": "/home/vinnymac/Sites/vinnymac/3Beans/src/android/app/.cxx/Debug/2n1l371q/x86_64",
+  "command": "/opt/android-sdk/ndk/27.3.13750724/toolchains/llvm/prebuilt/linux-x86_64/bin/clang++ --target=x86_64-none-linux-android24 --sysroot=/opt/android-sdk/ndk/27.3.13750724/toolchains/llvm/prebuilt/linux-x86_64/sysroot -DLOG_LEVEL=0 -D_3beans_EXPORTS -I/home/vinnymac/Sites/vinnymac/3Beans/src/android/app/src/main/cpp/shim -g -DANDROID -fdata-sections -ffunction-sections -funwind-tables -fstack-protector-strong -no-canonical-prefixes -D__BIONIC_NO_PAGE_SIZE_MACRO -D_FORTIFY_SOURCE=2 -Wformat -Werror=format-security   -fno-limit-debug-info  -fPIC -O3 -std=gnu++11 -o CMakeFiles/3beans.dir/home/vinnymac/Sites/vinnymac/3Beans/src/core/memory/ndma.cpp.o -c /home/vinnymac/Sites/vinnymac/3Beans/src/core/memory/ndma.cpp",
+  "file": "/home/vinnymac/Sites/vinnymac/3Beans/src/core/memory/ndma.cpp"
+},
+{
+  "directory": "/home/vinnymac/Sites/vinnymac/3Beans/src/android/app/.cxx/Debug/2n1l371q/x86_64",
+  "command": "/opt/android-sdk/ndk/27.3.13750724/toolchains/llvm/prebuilt/linux-x86_64/bin/clang++ --target=x86_64-none-linux-android24 --sysroot=/opt/android-sdk/ndk/27.3.13750724/toolchains/llvm/prebuilt/linux-x86_64/sysroot -DLOG_LEVEL=0 -D_3beans_EXPORTS -I/home/vinnymac/Sites/vinnymac/3Beans/src/android/app/src/main/cpp/shim -g -DANDROID -fdata-sections -ffunction-sections -funwind-tables -fstack-protector-strong -no-canonical-prefixes -D__BIONIC_NO_PAGE_SIZE_MACRO -D_FORTIFY_SOURCE=2 -Wformat -Werror=format-security   -fno-limit-debug-info  -fPIC -O3 -std=gnu++11 -o CMakeFiles/3beans.dir/home/vinnymac/Sites/vinnymac/3Beans/src/core/settings.cpp.o -c /home/vinnymac/Sites/vinnymac/3Beans/src/core/settings.cpp",
+  "file": "/home/vinnymac/Sites/vinnymac/3Beans/src/core/settings.cpp"
+}
+]
